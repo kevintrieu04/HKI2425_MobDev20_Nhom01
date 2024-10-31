@@ -1,0 +1,461 @@
+package com.example.cinemaapp.ui
+
+import android.graphics.Movie
+import android.graphics.Paint.Align
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.ScaleFactor
+import androidx.compose.ui.layout.lerp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
+import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.example.cinemaapp.R
+import com.example.cinemaapp.models.AdModel
+import com.example.cinemaapp.ui.navigation.AppRouteName
+import com.example.cinemaapp.models.MovieModel
+import com.example.cinemaapp.viewmodels.HomePageUiState
+import com.example.cinemaapp.viewmodels.HomePageViewModel
+//import com.example.cinemaapp.module.home.model.nowPlayingMovie
+//import com.example.cinemaapp.module.home.model.upcoming
+
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlin.math.absoluteValue
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    uiState: HomePageUiState,
+    navController: NavHostController,
+    viewModel: HomePageViewModel
+) {
+
+
+    if (uiState is HomePageUiState.Success) {
+        val scrollState = rememberScrollState()
+        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                    ),
+                    title = {
+                        Text(
+                            "Trang chủ",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    actions = {
+                        IconButton(onClick = { /* do something */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Person,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                )
+            }
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(
+                        top = padding.calculateTopPadding() + 24.dp,
+                        bottom = padding.calculateBottomPadding() + 24.dp,
+                    )
+            ) {
+                Text(
+                    text = "Chào mừng trở lại, Khách!",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(horizontal = 24.dp)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Hãy duyệt qua những bài đánh giá gần đây",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(horizontal = 24.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Banners(uiState.ads)
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Text(
+                        text = "Thể loại",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    TextButton(onClick = { }) {
+                        Text(text = "See All")
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Categories()
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Text(
+                        text = "Đang chiếu tại rạp",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    TextButton(onClick = { }) {
+                        Text(text = "Xem thêm")
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                NowPlayingMovie(uiState.movies) { movie ->
+                    navController.navigate("${AppRouteName.Detail}/${movie.id}")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Text(
+                        text = "Tất cả các phim",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    TextButton(onClick = { }) {
+                        Text(text = "Xem thêm")
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                UpcomingMovie(uiState.movies)
+            }
+        }
+    } else if (uiState is HomePageUiState.Loading) {
+        LoadingScreen()
+    } else {
+        ErrorScreen(retryAction = {viewModel.fetchData()})
+    }
+}
+
+@Composable
+fun UpcomingMovie(
+    upcoming: List<MovieModel>
+) {
+    LazyRow(
+        contentPadding = PaddingValues(start = 24.dp)
+    ) {
+        items(count = upcoming.size) { index ->
+            Box(modifier = Modifier
+                .padding(end = 24.dp)
+                .clickable { }
+                .clip(RoundedCornerShape(16.dp))
+            ) {
+                Column(
+                    modifier = Modifier.wrapContentHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context = LocalContext.current)
+                            .data(upcoming[index].imgSrc)
+                            .crossfade(true)
+                            .build(),
+                        error = painterResource(R.drawable.baseline_broken_image_24),
+                        contentDescription = "Movie Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth(fraction = 0.85f)
+                            .height(340.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = upcoming[index].title,
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun NowPlayingMovie(
+    nowPlayingMovie: List<MovieModel>,
+    onMovieClicked: (MovieModel) -> Unit
+) {
+    val pagerState = rememberPagerState(0, pageCount = { return@rememberPagerState nowPlayingMovie.size })
+    HorizontalPager(
+        state = pagerState,
+        contentPadding = PaddingValues(start = 48.dp, end = 48.dp)
+    ) { page ->
+
+        Column(
+            modifier = Modifier
+                .wrapContentHeight()
+                .graphicsLayer {
+                    val pageOffset = (
+                            (pagerState.currentPage - page) + pagerState
+                                .currentPageOffsetFraction
+                            ).absoluteValue
+                    lerp(
+                        start = ScaleFactor(1f, 0.85f),
+                        stop = ScaleFactor(1f, 1f),
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    ).also { scale ->
+                        scaleX = scale.scaleX
+                        scaleY = scale.scaleY
+                    }
+                }
+                .clickable {
+                    onMovieClicked(nowPlayingMovie[page])
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier.clip(RoundedCornerShape(16.dp)),
+                contentAlignment = Alignment.BottomCenter
+
+            ) {
+                /*Image(
+                    painter = painterResource(id = nowPlayingMovie[page].assetImage),
+                    contentDescription = "Movie Image",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.85f)
+                        .height(340.dp)
+                )*/
+                AsyncImage(
+                    model = ImageRequest.Builder(context = LocalContext.current)
+                        .data(nowPlayingMovie[page].imgSrc)
+                        .crossfade(true)
+                        .build(),
+                    error = painterResource(R.drawable.baseline_broken_image_24),
+                    contentDescription = "Movie Image",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.85f)
+                        .height(340.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .graphicsLayer {
+                            val pageOffset = (
+                                    (pagerState.currentPage - page) + pagerState
+                                        .currentPageOffsetFraction
+                                    ).absoluteValue
+                            val translation = pageOffset.coerceIn(0f, 1f)
+
+                            translationY = translation * 200
+                        }
+                        .fillMaxWidth(fraction = 0.85f)
+                        .wrapContentHeight()
+                        .background(
+                            Color(0xFF427D89)
+                        )
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Đặt vé", style = MaterialTheme.typography.titleMedium.copy(
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = nowPlayingMovie[page].title,
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+fun Categories() {
+    val categories = listOf(
+        "Hoạt hình",
+        "Kinh dị",
+        "Hành động",
+        "Hài",
+        "Lãng mạn",
+        "Khoa học viễn tưởng",
+        "Lịch sử",
+        "Phiêu lưu",
+    )
+    val scrollState = rememberScrollState()
+
+    Row(
+        modifier = Modifier.horizontalScroll(scrollState)
+    ) {
+        repeat(categories.size) { index ->
+            Surface(
+                /// order matters
+                modifier = Modifier
+                    .padding(
+                        start = if (index == 0) 24.dp else 0.dp,
+                        end = 12.dp,
+                    )
+                    .border(width = 1.dp, color = Gray, shape = RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable { }
+                    .padding(12.dp)
+            ) {
+                Text(text = categories[index], style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun Banners(banners: List<AdModel>) {
+
+
+    val pagerState = rememberPagerState(0, pageCount = { return@rememberPagerState banners.size })
+    val bannerIndex = remember { mutableStateOf(0) }
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            bannerIndex.value = page
+        }
+    }
+
+    /// auto scroll
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(10_000)
+            tween<Float>(1500)
+            pagerState.animateScrollToPage(
+                page = (pagerState.currentPage + 1) % pagerState.pageCount
+            )
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(190.dp)
+            .padding(horizontal = 24.dp)
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(190.dp)
+        ) { index ->
+            /*Image(
+                painter = painterResource(id = banners[index].id),
+                contentDescription = "Banners",
+                contentScale = ContentScale.FillBounds,
+            )*/
+            AsyncImage(
+                model = ImageRequest.Builder(context = LocalContext.current)
+                    .data(banners[index].imgSrc)
+                    .crossfade(true)
+                    .build(),
+                error = painterResource(R.drawable.baseline_broken_image_24),
+                contentDescription = "Movie Image",
+                contentScale = ContentScale.Crop,
+            )
+        }
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+        ) {
+            repeat(banners.size) { index ->
+                val height = 12.dp
+                val width = if (index == bannerIndex.value) 28.dp else 12.dp
+                val color = if (index == bannerIndex.value) MaterialTheme.colorScheme.tertiary else Gray
+
+                Surface(
+                    modifier = Modifier
+                        .padding(end = 6.dp)
+                        .size(width, height)
+                        .clip(RoundedCornerShape(20.dp)),
+                    color = color,
+                ) {
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The home screen displaying the loading message.
+ */
+@Composable
+fun LoadingScreen(modifier: Modifier = Modifier) {
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator(
+            modifier = Modifier.width(64.dp),
+            color = MaterialTheme.colorScheme.secondary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+        )
+    }
+}
+
+/**
+ * The home screen displaying error message with re-attempt button.
+ */
+@Composable
+fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.baseline_wifi_off_24), contentDescription = ""
+        )
+        Text(text = stringResource(R.string.loading_failed), modifier = Modifier.padding(16.dp))
+        Button(onClick = retryAction) {
+            Text(stringResource(R.string.retry))
+        }
+    }
+}

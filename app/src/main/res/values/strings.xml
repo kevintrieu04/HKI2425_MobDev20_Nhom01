@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">CinemaApp</string>
+    <string name="loading_failed">
+        Có lỗi xảy ra. Vui lòng thử lại sau ít phút
+    </string>
+    <string name="retry">
+        Tải lại
+    </string>
+</resources>
