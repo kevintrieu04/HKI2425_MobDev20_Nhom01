@@ -1,13 +1,9 @@
 package com.example.cinemaapp.ui.navigation
 
-import android.graphics.Movie
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.cinemaapp.models.MovieModel
 import com.example.cinemaapp.ui.DetailScreen
 import com.example.cinemaapp.ui.HomeScreen
 import com.example.cinemaapp.ui.SeatSelectorScreen
