@@ -8,7 +8,8 @@ File readme này sẽ nói tổng quan về dàn bài và các việc cần hoà
 
 Chúng ta sẽ thiết kế ứng dụng theo mô hình MVVM (Model - View - View Model. Hình bên dưới). Trong thư mục src cũng đã chia ra thành các thành phần kiểu này
 
-![image](https://github.com/user-attachments/assets/2de4bf61-ec80-4b01-a20d-df75562acf1b)
+![image](https://github.com/user-attachments/assets/69afa219-bf89-41f1-a8a4-adbc69ad084a)
+
 
 Từ sau nếu có thêm tính năng mới thì hãy **để file vào đúng thư mục**. Ví dụ: các file composable để vào thư mục ui, View Model để vào thư mục viewmodels và các data thì để vào model, các file truy cập database hoặc mạng như Room với Retrofit thì để vào thư mục network và database,....
 
