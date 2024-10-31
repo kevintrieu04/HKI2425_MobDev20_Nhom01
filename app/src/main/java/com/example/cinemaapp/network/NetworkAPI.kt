@@ -5,7 +5,7 @@ import com.example.cinemaapp.models.MovieModel
 import retrofit2.http.GET
 
 /**
- * A public interface that exposes the [getPhotos] method
+ * A public interface that exposes the [getMovies] method
  */
 interface NetworkAPI {
     @GET("uc?export=download&id=135kmAWeGUhTEzvt4V8mdC0CE2sHoKkQU")

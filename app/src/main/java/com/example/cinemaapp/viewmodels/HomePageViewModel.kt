@@ -1,11 +1,8 @@
 package com.example.cinemaapp.viewmodels
 
-import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -14,9 +11,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.cinemaapp.models.AdModel
 import com.example.cinemaapp.models.AdRepository
-import com.example.cinemaapp.models.AdvertisementRepository
 import com.example.cinemaapp.models.MovieModel
-import com.example.cinemaapp.models.MovieRepository
 import com.example.cinemaapp.models.Repository
 import kotlinx.coroutines.launch
 
