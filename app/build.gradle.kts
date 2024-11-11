@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+    //alias(libs.plugins.google.gms.google.services)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -73,6 +75,16 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     // Coil
     implementation(libs.coil.compose)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.firestore)
+    implementation(libs.google.firebase.auth)
+    implementation(libs.googleid)
+
+
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
