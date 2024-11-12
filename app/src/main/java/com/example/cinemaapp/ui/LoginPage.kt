@@ -138,11 +138,3 @@ fun LoginPage (){
     }
 
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLoginPage() {
-    CompositionLocalProvider() {
-        LoginPage()
-    }
-}
