@@ -2,9 +2,11 @@ package com.example.cinemaapp.network
 
 import android.content.Context
 import androidx.credentials.CredentialManager
+
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import com.example.cinemaapp.R
+import com.example.cinemaapp.models.UserModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -100,7 +102,23 @@ class LoginManager(private val context: Context) {
 
         awaitClose()
     }
+
+    fun isLoggedIn(): Boolean {
+        return auth.currentUser != null
+    }
+
+    fun getUserInfo(): UserModel? {
+        val user = auth.currentUser ?: return null
+        return UserModel(
+            name = user.displayName ?: "",
+            email = user.email ?: "",
+            photoUrl = user.photoUrl?.toString() ?: ""
+        )
+    }
+
+    fun logout() = auth.signOut()
 }
+
 
 interface AuthResponse {
     data object Success: AuthResponse

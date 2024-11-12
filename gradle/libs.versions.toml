@@ -3,6 +3,7 @@ accompanistSystemuicontroller = "0.28.0"
 agp = "8.6.0"
 bsonKotlinx = "5.2.0"
 coilCompose = "2.4.0"
+credentials = "1.5.0-beta01"
 firebaseBom = "33.5.1"
 firebaseUiAuth = "7.2.0"
 googleServices = "4.4.2"
@@ -31,6 +32,8 @@ googleid = "1.1.1"
 [libraries]
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 bson-kotlinx = { module = "org.mongodb:bson-kotlinx", version.ref = "bsonKotlinx" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }

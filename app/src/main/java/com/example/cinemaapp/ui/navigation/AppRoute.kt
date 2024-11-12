@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.cinemaapp.ui.DetailScreen
 import com.example.cinemaapp.ui.HomeScreen
+import com.example.cinemaapp.ui.LoginPage
 import com.example.cinemaapp.ui.SeatSelectorScreen
 import com.example.cinemaapp.viewmodels.HomePageUiState
 import com.example.cinemaapp.viewmodels.HomePageViewModel
@@ -33,6 +34,9 @@ object AppRoute {
             }
             composable(AppRouteName.SeatSelector) {
                 SeatSelectorScreen(navController = navController)
+            }
+            composable(AppRouteName.Login) {
+                LoginPage(navController = navController)
             }
         }
     }

@@ -28,16 +28,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.cinemaapp.R
 import com.example.cinemaapp.network.AuthResponse
 import com.example.cinemaapp.network.LoginManager
+import com.example.cinemaapp.ui.navigation.AppRouteName
 import com.example.compose.AppTheme
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 
 @Composable
-fun LoginPage (){
+fun LoginPage (navController: NavHostController) {
 
     var email by remember { mutableStateOf("")}
     var password by remember { mutableStateOf("")}
@@ -91,6 +93,7 @@ fun LoginPage (){
                     if (response is AuthResponse.Success) {
                         Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT)
                             .show()
+                        navController.popBackStack()
                     } else {
                         Toast.makeText(context, (response as AuthResponse.Error).message, Toast.LENGTH_SHORT)
                             .show()
@@ -125,6 +128,7 @@ fun LoginPage (){
                         if (response is AuthResponse.Success) {
                             Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT)
                                 .show()
+                            navController.popBackStack()
                         } else {
                             Toast.makeText(context, (response as AuthResponse.Error).message, Toast.LENGTH_SHORT)
                                 .show()

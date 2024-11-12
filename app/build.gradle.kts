@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "com.example.cinemaapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.cinemaapp"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -81,7 +81,10 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
     implementation(libs.google.firebase.auth)
+    implementation(libs.play.services.auth)
+    implementation(libs.androidx.credentials)
     implementation(libs.googleid)
+    implementation(libs.androidx.credentials.play.services.auth)
 
 
 

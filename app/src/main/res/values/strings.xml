@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">CinemaApp</string>
+    <string name="app_name">Rotten Eggs</string>
     <string name="loading_failed">
         Có lỗi xảy ra. Vui lòng thử lại sau ít phút
     </string>
     <string name="retry">
         Tải lại
     </string>
-    <string name="web_client_id">1025273953229-4ienca5484tegvarp9tttfkdflc17ggh.apps.googleusercontent.com</string>
+    <string name="web_client_id">1025273953229-9ptta3ibfepcn1l28fupbmd8bbgh1cep.apps.googleusercontent.com</string>
 </resources>

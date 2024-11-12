@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -53,9 +54,11 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,7 +84,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cinemaapp.R
 import com.example.cinemaapp.models.AdModel
+import com.example.cinemaapp.models.DrawerItem
 import com.example.cinemaapp.models.MovieModel
+import com.example.cinemaapp.models.drawerItems
+import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
 import com.example.cinemaapp.viewmodels.HomePageUiState
 import com.example.cinemaapp.viewmodels.HomePageViewModel
@@ -111,7 +117,8 @@ fun HomeScreen(
             drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet {
-                    DrawerHeader()
+                    DrawerHeader(Modifier.padding(16.dp), navController = navController)
+                    DrawerBody(drawerItems)
                 }
             }
         ) {
@@ -525,27 +532,80 @@ fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun DrawerHeader(modifier: Modifier = Modifier) {
-    Box(modifier) {
-        Row {
-            Icon(painterResource(R.drawable.baseline_person_24), contentDescription = "")
-            Spacer(Modifier.size(5.dp))
-            Text(
-                "Bạn chưa đăng nhập",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
+fun DrawerHeader(modifier: Modifier = Modifier,
+                 navController: NavHostController) {
+    val context = LocalContext.current
+
+    val manager = remember {
+        LoginManager(context)
+    }
+
+    if (!manager.isLoggedIn()) {
+        Box(modifier.clickable {
+            navController.navigate(AppRouteName.Login)
+        }) {
+            Row {
+                Icon(painterResource(R.drawable.baseline_person_24), contentDescription = "")
+                Spacer(Modifier.size(5.dp))
+                Text(
+                    "Bạn chưa đăng nhập",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
+        }
+    } else {
+        val user = manager.getUserInfo()
+        Box(modifier) {
+            Row {
+                if (user != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context = LocalContext.current)
+                            .data(user.photoUrl)
+                            .crossfade(true)
+                            .build(),
+                        error = painterResource(R.drawable.baseline_broken_image_24),
+                        contentDescription = "Movie Image",
+                        contentScale = ContentScale.Crop,
+                    )
+                    Spacer(Modifier.size(5.dp))
+                    Column {
+                        Text(
+                            user.name,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Text(
+                            user.email,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                        Text(
+                            "Đăng xuất",
+                            modifier = Modifier
+                                .clickable {
+                                    manager.logout()
+                                    navController.navigate(AppRouteName.Home)
+                                }
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun DrawerBody() {
-    NavigationDrawerItem(
-        label = { Text(text = "Drawer Item") },
-        selected = false,
-        onClick = { /*TODO*/ }
-    )
+fun DrawerBody(drawerItems: List<DrawerItem>) {
+    LazyColumn {
+        items(drawerItems.size) { index ->
+            NavigationDrawerItem(
+                label = {Text(drawerItems[index].title)},
+                icon = {
+                    Icon(drawerItems[index].icon,
+                    contentDescription = drawerItems[index].title) },
+                selected = false,
+                onClick = { /*TODO*/ }
+            )
+        }
+    }
 }
