@@ -1,4 +1,4 @@
-package com.example.cinemaapp.viewmodels
+package com.example.cinemaapp.network
 
 import android.content.Context
 import androidx.credentials.CredentialManager
@@ -18,28 +18,28 @@ import java.security.MessageDigest
 import java.util.UUID
 
 
-class LoginViewModel(val context: Context) {
+class LoginManager(private val context: Context) {
     private val auth = Firebase.auth
 
-    fun createAccount(email: String, password: String): Flow<LoginUiState> = callbackFlow {
+    fun createAccount(email: String, password: String): Flow<AuthResponse> = callbackFlow {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    trySend(LoginUiState.Success)
+                    trySend(AuthResponse.Success)
                 } else {
-                    trySend(LoginUiState.Error(it.exception?.message ?:""))
+                    trySend(AuthResponse.Error(it.exception?.message ?: ""))
                 }
             }
         awaitClose()
     }
 
-    fun login(email: String, password: String): Flow<LoginUiState> = callbackFlow {
+    fun login(email: String, password: String): Flow<AuthResponse> = callbackFlow {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    trySend(LoginUiState.Success)
+                    trySend(AuthResponse.Success)
                 } else {
-                    trySend(LoginUiState.Error(it.exception?.message ?:""))
+                    trySend(AuthResponse.Error(it.exception?.message ?: ""))
                 }
             }
         awaitClose()
@@ -55,7 +55,7 @@ class LoginViewModel(val context: Context) {
 
     }
 
-    fun loginWithGoogle(): Flow<LoginUiState> = callbackFlow {
+    fun loginWithGoogle(): Flow<AuthResponse> = callbackFlow {
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(context.getString(R.string.web_client_id))
@@ -84,25 +84,25 @@ class LoginViewModel(val context: Context) {
                         auth.signInWithCredential(firebaseCredential)
                             .addOnCompleteListener {
                                 if (it.isSuccessful) {
-                                    trySend(LoginUiState.Success)
+                                    trySend(AuthResponse.Success)
                                 } else {
-                                    trySend(LoginUiState.Error(it.exception?.message ?:""))
+                                    trySend(AuthResponse.Error(it.exception?.message ?: ""))
                                 }
                             }
                     } catch (e : GoogleIdTokenParsingException) {
-                        trySend(LoginUiState.Error(e.message ?:""))
+                        trySend(AuthResponse.Error(e.message ?: ""))
                     }
                 }
             }
         } catch (e: Exception) {
-            trySend(LoginUiState.Error(message = e.message ?:""))
+            trySend(AuthResponse.Error(message = e.message ?: ""))
         }
 
         awaitClose()
     }
 }
 
-interface LoginUiState {
-    data object Success: LoginUiState
-    data class Error(val message: String): LoginUiState
+interface AuthResponse {
+    data object Success: AuthResponse
+    data class Error(val message: String): AuthResponse
 }

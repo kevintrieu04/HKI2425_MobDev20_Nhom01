@@ -1,10 +1,7 @@
 package com.example.cinemaapp.ui
 
-import android.os.Bundle
 import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,32 +9,46 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.cinemaapp.R
+import com.example.cinemaapp.network.AuthResponse
+import com.example.cinemaapp.network.LoginManager
+import com.example.compose.AppTheme
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+
 
 @Composable
 fun LoginPage (){
 
-    var username by remember { mutableStateOf("")}
+    var email by remember { mutableStateOf("")}
     var password by remember { mutableStateOf("")}
+
+    val context = LocalContext.current
+
+    val manager = remember {
+        LoginManager(context)
+    }
+
+    val coroutinescope = rememberCoroutineScope()
 
     Column (
         modifier = Modifier.fillMaxSize(),
@@ -56,10 +67,10 @@ fun LoginPage (){
         Spacer (modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = username,
-            onValueChange = {username = it},
+            value = email,
+            onValueChange = {email = it},
             label = {
-                Text(text = "Username")
+                Text(text = "Email")
             }
         )
 
@@ -75,7 +86,17 @@ fun LoginPage (){
         )
         Spacer(modifier = Modifier.height(8.dp))
         Button(onClick = {
-            Log.i("Login", "Username: $username, Password: $password")
+            manager.login(email,password)
+                .onEach { response ->
+                    if (response is AuthResponse.Success) {
+                        Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        Toast.makeText(context, (response as AuthResponse.Error).message, Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }.launchIn(coroutinescope)
+            Log.i("Login", "Email: $email, Password: $password")
         }) {
             Text(text = "Login")
         }
@@ -99,10 +120,29 @@ fun LoginPage (){
             modifier = Modifier.clickable {
                 Log.i("Login", "Sign in with Google")
                 //goi dengoogle de dang nhap
+                manager.loginWithGoogle()
+                    .onEach { response ->
+                        if (response is AuthResponse.Success) {
+                            Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            Toast.makeText(context, (response as AuthResponse.Error).message, Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
+                    .launchIn(coroutinescope)
             }
                 .size(100.dp)
 
         )
     }
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLoginPage() {
+    CompositionLocalProvider() {
+        LoginPage()
+    }
 }
