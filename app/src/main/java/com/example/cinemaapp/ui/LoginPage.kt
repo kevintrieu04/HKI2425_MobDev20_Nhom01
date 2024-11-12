@@ -106,3 +106,9 @@ fun LoginPage (){
     }
 
 }
+
+@Preview(showBackground = true)
+@Composable
+fun LoginPagePreview() {
+    LoginPage()
+}
