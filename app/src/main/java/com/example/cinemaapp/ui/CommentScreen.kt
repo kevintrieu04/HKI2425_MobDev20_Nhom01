@@ -26,7 +26,6 @@ data class Comment(
     val reactions: String,
     val profileImage: Int // Giả định đây là resource ID của ảnh đại diện
 )
-
 val sampleComments = listOf(
     Comment("Minh Hoàng", "Phim này đúng là kiệt tác của điện ảnh, không thể rời mắt được! 🎬🔥", "2 ngày", "15 👍😍", R.drawable.user),
     Comment("Lan Phương", "Kết thúc phim làm mình ngạc nhiên quá, không ngờ lại như vậy! 😮👏", "3 ngày", "23 😂👍", R.drawable.user),
@@ -38,12 +37,12 @@ val sampleComments = listOf(
     Comment("Hữu Tài", "Xem phim xong mà cứ nghĩ mãi, đúng là tác phẩm để đời. 📽️✨", "12 giờ", "14 ❤️🔥", R.drawable.user)
 )
 
-
 @Composable
 fun CommentScreen(comments: List<Comment>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
+            .fillMaxHeight()
             .padding(8.dp)
     ) {
         items(comments) { comment ->
