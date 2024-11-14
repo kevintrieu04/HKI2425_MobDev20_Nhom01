@@ -11,11 +11,11 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-lates
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        api-level: [30]          # Đặt API level cho các test
+        api-level: [29]          # Sử dụng API cấp thấp hơn để giảm thời gian khởi động
         target: [google_apis]     # Sử dụng google_apis để hỗ trợ máy ảo với API của Google
         abi: [x86_64]             # Kiến trúc của máy ảo
 
@@ -46,8 +46,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install qemu-kvm -y
-        echo "hw.cpu.ncore=2" >> ~/.android/avd/Pixel_API_30_AOSP.ini
-        $ANDROID_HOME/emulator/emulator -avd Pixel_API_30_AOSP -no-snapshot-load -no-window -gpu swiftshader_indirect &
+        echo "hw.cpu.ncore=2" >> ~/.android/avd/Pixel_API_29_AOSP.ini
+        $ANDROID_HOME/emulator/emulator -avd Pixel_API_29_AOSP -no-snapshot-load -no-window -gpu swiftshader_indirect &
         adb wait-for-device
         adb shell input keyevent 82 &
       env:
