@@ -1,0 +1,59 @@
+name: Android CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        api-level: [30]          # Đặt API level cho các test
+        target: [default]
+        abi: [x86_64]            # Kiến trúc của máy ảo
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'      # Sử dụng Zulu JDK (OpenJDK)
+        java-version: '17'        # Phiên bản JDK (dành cho Android)
+
+    - name: Download dependencies
+      run: ./gradlew build --no-daemon
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v2
+      with:
+        api-level: ${{ matrix.api-level }}
+        target: ${{ matrix.target }}
+        arch: ${{ matrix.abi }}
+
+    - name: Cache Gradle
+      uses: actions/cache@v3
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Build project
+      run: ./gradlew assembleDebug --no-daemon
+
+    - name: Run unit tests
+      run: ./gradlew testDebugUnitTest --no-daemon
+
+    - name: Run instrumented tests
+      run: ./gradlew connectedAndroidTest --no-daemon
+      env:
+        ADB_INSTALL_TIMEOUT: 10
