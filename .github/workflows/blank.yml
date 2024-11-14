@@ -11,13 +11,13 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-lates
 
     strategy:
       matrix:
         api-level: [30]          # Đặt API level cho các test
-        target: [default]
-        abi: [x86_64]            # Kiến trúc của máy ảo
+        target: [google_apis]     # Sử dụng google_apis để hỗ trợ máy ảo với API của Google
+        abi: [x86_64]             # Kiến trúc của máy ảo
 
     steps:
     - name: Checkout code
@@ -26,8 +26,11 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
-        distribution: 'zulu'      # Sử dụng Zulu JDK (OpenJDK)
-        java-version: '17'        # Phiên bản JDK (dành cho Android)
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Download dependencies
+      run: ./gradlew build --no-daemon
 
     - name: Set up Android SDK
       uses: android-actions/setup-android@v2
@@ -39,19 +42,24 @@ jobs:
     - name: Grant execute permission for Gradle wrapper
       run: chmod +x ./gradlew
 
-    - name: Cache Gradle
-      uses: actions/cache@v3
-      with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
+    - name: Start emulator
+      run: |
+        sudo apt-get update
+        sudo apt-get install qemu-kvm -y
+        echo "hw.cpu.ncore=2" >> ~/.android/avd/Pixel_API_30_AOSP.ini
+        $ANDROID_HOME/emulator/emulator -avd Pixel_API_30_AOSP -no-snapshot-load -no-window -gpu swiftshader_indirect &
+        adb wait-for-device
+        adb shell input keyevent 82 &
+      env:
+        ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
-    - name: Build project
-      run: ./gradlew assembleDebug --no-daemon
-
-    - name: Run unit tests
-      run: ./gradlew testDebugUnitTest --no-daemon
+    - name: Wait for emulator to boot
+      run: |
+        adb wait-for-device
+        adb shell settings put global window_animation_scale 0 &
+        adb shell settings put global transition_animation_scale 0 &
+        adb shell settings put global animator_duration_scale 0 &
+      timeout-minutes: 5
 
     - name: Run instrumented tests
       run: ./gradlew connectedAndroidTest --no-daemon
