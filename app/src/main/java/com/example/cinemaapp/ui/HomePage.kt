@@ -103,8 +103,6 @@ fun HomeScreen(
     navController: NavHostController,
     viewModel: HomePageViewModel
 ) {
-
-
     if (uiState is HomePageUiState.Success) {
         val scrollState = rememberScrollState()
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -537,11 +535,14 @@ fun DrawerHeader(modifier: Modifier = Modifier,
                  navController: NavHostController) {
     val context = LocalContext.current
 
+
     val manager = remember {
         LoginManager(context)
     }
 
-    if (!manager.isLoggedIn()) {
+    var isLoggedin by remember { mutableStateOf(manager.isLoggedIn()) }
+
+    if (!isLoggedin) {
         Box(modifier.clickable {
             navController.navigate(AppRouteName.Login)
         }) {
@@ -584,7 +585,7 @@ fun DrawerHeader(modifier: Modifier = Modifier,
                             modifier = Modifier
                                 .clickable {
                                     manager.logout()
-                                    navController.navigate(AppRouteName.Home)
+                                    isLoggedin = false
                                 }
                         )
                     }

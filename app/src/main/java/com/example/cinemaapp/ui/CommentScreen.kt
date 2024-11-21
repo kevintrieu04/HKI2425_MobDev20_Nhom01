@@ -71,7 +71,7 @@ fun CommentItem(comment: Comment) {
                 .fillMaxWidth()
                 .padding(start = 8.dp),
             shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
