@@ -245,6 +245,8 @@ fun DetailScreen(
     }
 }
 
+
+
 @Composable
 fun MovieInfo(
     @DrawableRes painterResourceId: Int,
