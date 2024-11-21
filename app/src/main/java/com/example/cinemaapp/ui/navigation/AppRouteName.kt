@@ -6,4 +6,5 @@ object AppRouteName {
     const val Detail = "/detail"
     const val SeatSelector = "/seat-selector"
     const val Login = "/login"
+    const val Register = "/register"
 }
