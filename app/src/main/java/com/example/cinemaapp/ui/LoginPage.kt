@@ -112,6 +112,7 @@ fun LoginPage (navController: NavHostController) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(modifier = Modifier.clickable{
             //trang dang ki
+            navController.navigate(AppRouteName.Register)
         },
             text = "Don't have an account?",
             textDecoration = TextDecoration.Underline)

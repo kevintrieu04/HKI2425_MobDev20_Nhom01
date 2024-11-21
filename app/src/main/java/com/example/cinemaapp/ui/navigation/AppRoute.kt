@@ -1,16 +1,18 @@
 package com.example.cinemaapp.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.DetailScreen
 import com.example.cinemaapp.ui.HomeScreen
 import com.example.cinemaapp.ui.LoginPage
 import com.example.cinemaapp.ui.SeatSelectorScreen
 import com.example.cinemaapp.viewmodels.HomePageUiState
 import com.example.cinemaapp.viewmodels.HomePageViewModel
-
+import com.example.cinemaapp.ui.SignUpScreen
 object AppRoute {
 
     @Composable
@@ -37,6 +39,9 @@ object AppRoute {
             }
             composable(AppRouteName.Login) {
                 LoginPage(navController = navController)
+            }
+            composable(AppRouteName.Register) {
+                SignUpScreen(navController = navController)
             }
         }
     }
