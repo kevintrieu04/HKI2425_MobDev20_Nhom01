@@ -18,11 +18,13 @@ jobs:
       packages: write
 
     steps:
+      # Bước 1: Check out mã nguồn
       - name: Check out 
         uses: actions/checkout@v3
         with:
           submodules: true
 
+      # Bước 2: Cài đặt Java
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -30,17 +32,26 @@ jobs:
           distribution: 'zulu'
           cache: gradle
 
+      # Bước 3: Thiết lập Android SDK
       - name: Set up android
         uses: android-actions/setup-android@v3
         with:
           api-level: 34
           build-tools: 34.0.0
+
+      # Bước 4: Cấp quyền thực thi cho gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # Bước 5: Cài đặt các dependencies
       - name: Install Dependencies
         run: ./gradlew dependencies
 
+      # Bước 6: Build ứng dụng Debug
       - name: Build Debug App
         run: ./gradlew assembleDebug
 
+      # Bước 7: Upload file APK Debug
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
         with:
