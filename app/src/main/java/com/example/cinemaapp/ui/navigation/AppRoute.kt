@@ -1,5 +1,6 @@
 package com.example.cinemaapp.ui.navigation
 
+import SearchSceen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -42,6 +43,14 @@ object AppRoute {
             }
             composable(AppRouteName.Register) {
                 SignUpScreen(navController = navController)
+            }
+            composable("${AppRouteName.Drawer}/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")
+                if (id == "profile") {
+                    /* TODO */
+                } else if (id == "search") {
+                    SearchSceen()
+                }
             }
         }
     }

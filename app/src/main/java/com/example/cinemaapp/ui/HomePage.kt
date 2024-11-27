@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -107,7 +108,7 @@ fun HomeScreen(
         val scrollState = rememberScrollState()
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
-        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+        var drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
 
 
@@ -116,7 +117,9 @@ fun HomeScreen(
             drawerContent = {
                 ModalDrawerSheet {
                     DrawerHeader(Modifier.padding(16.dp), navController = navController)
-                    DrawerBody(drawerItems)
+                    DrawerBody(drawerItems, navController) { item ->
+                        navController.navigate("${AppRouteName.Drawer}/${item.id}")
+                    }
                 }
             }
         ) {
@@ -568,9 +571,10 @@ fun DrawerHeader(modifier: Modifier = Modifier,
                             .build(),
                         error = painterResource(R.drawable.baseline_broken_image_24),
                         contentDescription = "Movie Image",
+                        modifier = Modifier.size(100.dp),
                         contentScale = ContentScale.Crop,
                     )
-                    Spacer(Modifier.size(5.dp))
+                    Spacer(Modifier.width(10.dp))
                     Column {
                         Text(
                             user.name,
@@ -596,7 +600,9 @@ fun DrawerHeader(modifier: Modifier = Modifier,
 }
 
 @Composable
-fun DrawerBody(drawerItems: List<DrawerItem>) {
+fun DrawerBody(drawerItems: List<DrawerItem>,
+               navController: NavHostController,
+               navigateToScreen: (DrawerItem) -> Unit) {
     LazyColumn {
         items(drawerItems.size) { index ->
             NavigationDrawerItem(
@@ -605,7 +611,9 @@ fun DrawerBody(drawerItems: List<DrawerItem>) {
                     Icon(drawerItems[index].icon,
                     contentDescription = drawerItems[index].title) },
                 selected = false,
-                onClick = { /*TODO*/ }
+                onClick = {
+                    navigateToScreen(drawerItems[index])
+                }
             )
         }
     }
