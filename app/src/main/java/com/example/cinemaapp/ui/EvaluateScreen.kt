@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.example.cinemaapp.R
 
 @Composable
@@ -37,61 +38,63 @@ fun StarRatingPopup(
     rank: Int,
     onRatingSelected: (Int) -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .background(Color.Transparent)
-            .clickable { onDismiss() }
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-//        Card(
-//            modifier = Modifier
-//                .fillMaxWidth(0.8f)
-//                .wrapContentHeight(),
-//            shape = RoundedCornerShape(16.dp),
-//            colors = CardDefaults.cardColors(containerColor = Color.White),
-//            elevation = CardDefaults.cardElevation(8.dp)
-//        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Đánh giá:",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                        .align(Alignment.Start)
-                )
-
-                // Hàng nút bấm hình ngôi sao
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .background(Color.White, shape = RoundedCornerShape(16.dp))
+                .clickable { onDismiss() }
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+    //        Card(
+    //            modifier = Modifier
+    //                .fillMaxWidth(0.8f)
+    //                .wrapContentHeight(),
+    //            shape = RoundedCornerShape(16.dp),
+    //            colors = CardDefaults.cardColors(containerColor = Color.White),
+    //            elevation = CardDefaults.cardElevation(8.dp)
+    //        ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    repeat(5) { index ->
-                        IconButton(
-                            onClick = { onRatingSelected(index + 1) },
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "Rating Star ${index + 1}",
-                                tint = if (index < rank) Color.Black else Color.Gray
-                            )
+                    Text(
+                        text = "Đánh giá:",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                            .align(Alignment.Start)
+                    )
+
+                    // Hàng nút bấm hình ngôi sao
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        repeat(5) { index ->
+                            IconButton(
+                                onClick = { onRatingSelected(index + 1) },
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Rating Star ${index + 1}",
+                                    tint = if (index < rank) Color.Black else Color.Gray
+                                )
+                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    onClick = onDismiss,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
-                ) {
-                    Text(text = "Gửi", color = Color.White)
+                    Button(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                    ) {
+                        Text(text = "Gửi", color = Color.White)
+                    }
                 }
-            }
-//        }
+    //        }
+        }
     }
 }
 
