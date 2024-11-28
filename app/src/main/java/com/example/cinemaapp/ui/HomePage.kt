@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -52,7 +51,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,22 +68,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.layout.lerp
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cinemaapp.R
-import com.example.cinemaapp.models.AdModel
+import com.example.cinemaapp.data.AdModel
+import com.example.cinemaapp.data.Film
 import com.example.cinemaapp.models.DrawerItem
-import com.example.cinemaapp.models.MovieModel
+import com.example.cinemaapp.data.MovieModel
 import com.example.cinemaapp.models.drawerItems
 import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
@@ -210,7 +206,7 @@ fun HomeScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     NowPlayingMovie(uiState.movies) { movie ->
-                        navController.navigate("${AppRouteName.Detail}/${movie.id}")
+                        //navController.navigate("${AppRouteName.Detail}/${movie.id}")
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(
@@ -244,7 +240,7 @@ fun HomeScreen(
 
 @Composable
 fun UpcomingMovie(
-    upcoming: List<MovieModel>
+    upcoming: List<Film>
 ) {
     LazyRow(
         contentPadding = PaddingValues(start = 24.dp)
@@ -273,7 +269,7 @@ fun UpcomingMovie(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = upcoming[index].title,
+                        text = upcoming[index].name,
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center
                     )
@@ -288,8 +284,8 @@ fun UpcomingMovie(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NowPlayingMovie(
-    nowPlayingMovie: List<MovieModel>,
-    onMovieClicked: (MovieModel) -> Unit
+    nowPlayingMovie: List<Film>,
+    onMovieClicked: (Film) -> Unit
 ) {
     val pagerState =
         rememberPagerState(0, pageCount = { return@rememberPagerState nowPlayingMovie.size })
@@ -374,7 +370,7 @@ fun NowPlayingMovie(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = nowPlayingMovie[page].title,
+                text = nowPlayingMovie[page].name,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )

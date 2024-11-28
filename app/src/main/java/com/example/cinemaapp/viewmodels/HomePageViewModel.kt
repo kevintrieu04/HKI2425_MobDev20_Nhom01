@@ -9,14 +9,16 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.cinemaapp.models.AdModel
+import com.example.cinemaapp.data.AdModel
+import com.example.cinemaapp.data.Film
 import com.example.cinemaapp.models.AdRepository
-import com.example.cinemaapp.models.MovieModel
+import com.example.cinemaapp.data.MovieModel
 import com.example.cinemaapp.models.Repository
+import com.example.cinemaapp.network.DbConnect
 import kotlinx.coroutines.launch
 
 sealed interface HomePageUiState {
-    data class Success(val movies: List<MovieModel>, val ads: List<AdModel>) : HomePageUiState
+    data class Success(val movies: List<Film>, val ads: List<AdModel>) : HomePageUiState
     data object Error : HomePageUiState
     data object Loading : HomePageUiState
 }
@@ -34,7 +36,9 @@ class HomePageViewModel(private val repo: Repository,
         viewModelScope.launch {
             uiState = HomePageUiState.Loading
             uiState = try {
-                HomePageUiState.Success(repo.fetchData(), ad_repo.fetchAd())
+                val db = DbConnect()
+                val movies = db.readFilm()
+                HomePageUiState.Success(movies, ad_repo.fetchAd())
             } catch (e: Exception) {
                 HomePageUiState.Error
             }

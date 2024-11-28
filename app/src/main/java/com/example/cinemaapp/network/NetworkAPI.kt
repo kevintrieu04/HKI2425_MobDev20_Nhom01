@@ -1,7 +1,7 @@
 package com.example.cinemaapp.network
 
-import com.example.cinemaapp.models.AdModel
-import com.example.cinemaapp.models.MovieModel
+import com.example.cinemaapp.data.AdModel
+import com.example.cinemaapp.data.MovieModel
 import retrofit2.http.GET
 
 /**
@@ -13,4 +13,6 @@ interface NetworkAPI {
 
     @GET("uc?export=download&id=1E7NXafW7JsjKSPRXGK5-8tEpZQOPrsdF")
     suspend fun getAds(): List<AdModel>
+
+
 }

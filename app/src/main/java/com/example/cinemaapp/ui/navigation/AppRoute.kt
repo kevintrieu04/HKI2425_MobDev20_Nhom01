@@ -27,13 +27,13 @@ object AppRoute {
             composable(AppRouteName.Home) {
                 HomeScreen(navController = navController, uiState = uiState, viewModel = viewModel)
             }
-            composable("${AppRouteName.Detail}/{id}") { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("id")
-                if (uiState is HomePageUiState.Success) {
-                    val movie = uiState.movies.first { it.id == id }
-                    DetailScreen(navController = navController, movie)
-                }
-            }
+//            composable("${AppRouteName.Detail}/{id}") { backStackEntry ->
+//                val id = backStackEntry.arguments?.getString("id")
+//                if (uiState is HomePageUiState.Success) {
+//                    val movie = uiState.movies.first { it.id == id }
+//                    DetailScreen(navController = navController, movie)
+//                }
+//            }
             composable(AppRouteName.SeatSelector) {
                 SeatSelectorScreen(navController = navController)
             }
