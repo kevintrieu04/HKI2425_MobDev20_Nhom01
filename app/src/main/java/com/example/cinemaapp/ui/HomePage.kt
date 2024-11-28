@@ -70,6 +70,8 @@ import androidx.compose.ui.layout.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -187,7 +189,8 @@ fun HomeScreen(
                         TextButton(onClick = {
                             navController.navigate("${AppRouteName.Search}/- Tất cả -")
                         }) {
-                            Text(text = "Xem thêm")
+                            Text(text = "Xem thêm",
+                                Modifier.semantics { contentDescription = "Button 1" })
                         }
                     }
                     Spacer(modifier = Modifier.height(4.dp))
