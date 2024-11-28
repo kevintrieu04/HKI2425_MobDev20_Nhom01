@@ -3,10 +3,13 @@ package com.example.cinemaapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.cinemaapp.network.DbConect
+import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRoute
 import com.example.cinemaapp.viewmodels.HomePageViewModel
 import com.example.compose.AppTheme
@@ -37,6 +40,8 @@ class MainActivity : ComponentActivity() {
                 db.addData()
                 db.readData()
                 AppRoute.GenerateRoute(navController = navController, uiState = uiState, viewModel = viewModel)
+
+
             }
         }
     }
