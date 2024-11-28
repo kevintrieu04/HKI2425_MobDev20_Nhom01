@@ -46,6 +46,9 @@ jobs:
       # Bước 5: Cài đặt các dependencies
       - name: Install Dependencies
         run: ./gradlew dependencies
+        
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
 
       # Bước 6: Build ứng dụng Debug
       - name: Build Debug App
