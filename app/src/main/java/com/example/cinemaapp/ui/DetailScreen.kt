@@ -52,6 +52,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cinemaapp.R
 import com.example.cinemaapp.data.MovieModel
+
+import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
 
 @Composable
@@ -60,6 +62,12 @@ fun DetailScreen(
     movie: MovieModel,
 ) {
     val scrollState = rememberScrollState()
+    var comment by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val manager = remember {
+        LoginManager(context)
+    }
 
     Scaffold(
         floatingActionButtonPosition = FabPosition.Center,
@@ -184,6 +192,7 @@ fun DetailScreen(
                         text = "Bình luận", style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.height(40.dp)
                     )
+                    if (manager.isLoggedIn()) {
                     Row {
                         Button(
                             onClick = {},
@@ -201,9 +210,10 @@ fun DetailScreen(
 //                                contentScale = ContentScale.Fit
                             )
                         }
+
                         TextField(
-                            value = "",
-                            onValueChange = {},
+                            value = comment,
+                            onValueChange = { comment = it },
                             label = { Text("Nhập bình luận") },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -211,7 +221,7 @@ fun DetailScreen(
                                 .clip(RoundedCornerShape(16.dp))
                                 .weight(0.87f)
                         )
-                    }
+                    } }
                 }
 
                 // Danh sách các bộ phim

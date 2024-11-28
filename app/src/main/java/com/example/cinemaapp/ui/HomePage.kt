@@ -103,7 +103,7 @@ fun HomeScreen(
         val scrollState = rememberScrollState()
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
-        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+        var drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
 
 
@@ -112,7 +112,9 @@ fun HomeScreen(
             drawerContent = {
                 ModalDrawerSheet {
                     DrawerHeader(Modifier.padding(16.dp), navController = navController)
-                    DrawerBody(drawerItems)
+                    DrawerBody(drawerItems, navController) { item ->
+                        navController.navigate("${AppRouteName.Drawer}/${item.id}")
+                    }
                 }
             }
         ) {
@@ -158,13 +160,13 @@ fun HomeScreen(
                         )
                 ) {
                     Text(
-                        text = "Chào mừng bạn trở lại, Khách!",
+                        text = "Chào mừng bạn trở lại!",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Hãy duyệt qua những bài đánh giá gần đây",
+                        text = "Tìm kiếm hoặc duyệt qua các bộ phim tại đây",
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
@@ -182,12 +184,16 @@ fun HomeScreen(
                             text = "Thể loại",
                             style = MaterialTheme.typography.titleLarge,
                         )
-                        TextButton(onClick = { }) {
-                            Text(text = "See All")
+                        TextButton(onClick = {
+                            navController.navigate("${AppRouteName.Search}/- Tất cả -")
+                        }) {
+                            Text(text = "Xem thêm")
                         }
                     }
                     Spacer(modifier = Modifier.height(4.dp))
-                    Categories()
+                    Categories() { category ->
+                        navController.navigate("${AppRouteName.Search}/${category}")
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -200,7 +206,9 @@ fun HomeScreen(
                             text = "Đang chiếu tại rạp",
                             style = MaterialTheme.typography.titleLarge,
                         )
-                        TextButton(onClick = { }) {
+                        TextButton(onClick = {
+                            navController.navigate("${AppRouteName.Search}/- Tất cả -")
+                        }) {
                             Text(text = "Xem thêm")
                         }
                     }
@@ -220,7 +228,9 @@ fun HomeScreen(
                             text = "Tất cả các phim",
                             style = MaterialTheme.typography.titleLarge,
                         )
-                        TextButton(onClick = { }) {
+                        TextButton(onClick = {
+                            navController.navigate(AppRouteName.Search)
+                        }) {
                             Text(text = "Xem thêm")
                         }
                     }
@@ -380,7 +390,7 @@ fun NowPlayingMovie(
 }
 
 @Composable
-fun Categories() {
+fun Categories(navigateToSearch: (String) -> Unit) {
     val categories = listOf(
         "Hoạt hình",
         "Kinh dị",
@@ -406,7 +416,7 @@ fun Categories() {
                     )
                     .border(width = 1.dp, color = Gray, shape = RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(16.dp))
-                    .clickable { }
+                    .clickable {navigateToSearch(categories[index]) }
                     .padding(12.dp)
             ) {
                 Text(text = categories[index], style = MaterialTheme.typography.bodySmall)
@@ -527,8 +537,10 @@ fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun DrawerHeader(modifier: Modifier = Modifier,
-                 navController: NavHostController) {
+fun DrawerHeader(
+    modifier: Modifier = Modifier,
+    navController: NavHostController
+) {
     val context = LocalContext.current
 
 
@@ -564,9 +576,10 @@ fun DrawerHeader(modifier: Modifier = Modifier,
                             .build(),
                         error = painterResource(R.drawable.baseline_broken_image_24),
                         contentDescription = "Movie Image",
+                        modifier = Modifier.size(100.dp),
                         contentScale = ContentScale.Crop,
                     )
-                    Spacer(Modifier.size(5.dp))
+                    Spacer(Modifier.width(10.dp))
                     Column {
                         Text(
                             user.name,
@@ -592,17 +605,28 @@ fun DrawerHeader(modifier: Modifier = Modifier,
 }
 
 @Composable
-fun DrawerBody(drawerItems: List<DrawerItem>) {
+fun DrawerBody(
+    drawerItems: List<DrawerItem>,
+    navController: NavHostController,
+    navigateToScreen: (DrawerItem) -> Unit
+) {
     LazyColumn {
         items(drawerItems.size) { index ->
             NavigationDrawerItem(
-                label = {Text(drawerItems[index].title)},
+                label = { Text(drawerItems[index].title) },
                 icon = {
-                    Icon(drawerItems[index].icon,
-                    contentDescription = drawerItems[index].title) },
+                    Icon(
+                        drawerItems[index].icon,
+                        contentDescription = drawerItems[index].title
+                    )
+                },
                 selected = false,
-                onClick = { /*TODO*/ }
+                onClick = {
+                    navigateToScreen(drawerItems[index])
+                }
             )
         }
     }
 }
+
+
