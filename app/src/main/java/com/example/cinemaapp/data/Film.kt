@@ -1,7 +1,7 @@
 package com.example.cinemaapp.data
 
 data class Film(
-    val key: String = "",
+    var id: String = "",
     val name: String = "",
     val year: Int = 0,
     val genre: Any = "",

@@ -74,6 +74,7 @@ class DbConnect {
             snapshot.documents.mapNotNull { document ->
                 try {
                     val film = document.toObject(Film::class.java)
+                    film?.id = document.id
                     Log.d(TAG, "Film: $film")
                     film?.copy(genre = film.getGenreAsList()) // Chuyển đổi genre về danh sách
                 } catch (e: Exception) {
