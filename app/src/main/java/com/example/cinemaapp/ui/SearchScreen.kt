@@ -22,124 +22,104 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.cinemaapp.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchSceen() {
-    Column(
+fun SearchScreen(category: String = "- Tất cả -") {
+
+    var query by remember { mutableStateOf("") }
+   // var active by remember {mutableStateOf(false)}
+
+    Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White) // Đổi nền thành màu trắng
-            .padding(10.dp)
-    ) {
-        // Tiêu đề và thanh tìm kiếm
-        Header()
+            .padding(10.dp),
+        topBar = {
+            // Tiêu đề và thanh tìm kiếm
+            SearchBar(
+                query = query,
+                active = false,
+                onQueryChange = {query = it},
+                onActiveChange = {/*active = !active*/},
+                onSearch = {},
+                leadingIcon = {Icon(imageVector = Icons.Default.Search, contentDescription = "")},
+                placeholder = {Text("Tìm kiếm")},
+                modifier = Modifier.padding(horizontal = 20.dp)) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    ) { padding ->
+        Column(Modifier.padding(padding)) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Hàng đầu tiên: Loại phim và Thể loại
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            FilterDropdown(
-                title = "Loại phim:",
-                options = listOf("- Tất cả -", "Phim Lẻ", "Phim Bộ")
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            FilterDropdown(
-                title = "Thể loại:",
-                options = listOf("- Tất cả -", "Hành động", "Hài", "Tình cảm", "Kinh dị")
-            )
+            // Hàng đầu tiên: Loại phim và Thể loại
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                FilterDropdown(
+                    title = "Loại phim:",
+                    options = listOf("- Tất cả -", "Phim Lẻ", "Phim Bộ")
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                FilterDropdown(
+                    title = "Thể loại:",
+                    options = listOf(
+                        "- Tất cả -",
+                        "Hoạt hình",
+                        "Kinh dị",
+                        "Hành động",
+                        "Hài",
+                        "Lãng mạn",
+                        "Khoa học viễn tưởng",
+                        "Lịch sử",
+                        "Phiêu lưu",),
+                    defaultValue = category
+                )
+
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Hàng thứ hai: Quốc gia và Năm
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                FilterDropdown(
+                    title = "Quốc gia:",
+                    options = listOf("- Tất cả -", "Việt Nam", "Mỹ", "Hàn Quốc", "Nhật Bản")
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                FilterDropdown(
+                    title = "Năm:",
+                    options = listOf("- Tất cả -", "2024", "2023", "2022", "2021")
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Hàng thứ ba: Thời lượng và Sắp xếp
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                FilterDropdown(
+                    title = "Thời lượng:",
+                    options = listOf("- Tất cả -", "Dưới 1 giờ", "1-2 giờ", "Trên 2 giờ")
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                FilterDropdown(
+                    title = "Sắp xếp:",
+                    options = listOf("Ngày cập nhật", "Tên A-Z", "Tên Z-A", "Điểm cao nhất")
+                )
+            }
+            FilmList()
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Hàng thứ hai: Quốc gia và Năm
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            FilterDropdown(
-                title = "Quốc gia:",
-                options = listOf("- Tất cả -", "Việt Nam", "Mỹ", "Hàn Quốc", "Nhật Bản")
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            FilterDropdown(
-                title = "Năm:",
-                options = listOf("- Tất cả -", "2024", "2023", "2022", "2021")
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Hàng thứ ba: Thời lượng và Sắp xếp
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            FilterDropdown(
-                title = "Thời lượng:",
-                options = listOf("- Tất cả -", "Dưới 1 giờ", "1-2 giờ", "Trên 2 giờ")
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            FilterDropdown(
-                title = "Sắp xếp:",
-                options = listOf("Ngày cập nhật", "Tên A-Z", "Tên Z-A", "Điểm cao nhất")
-            )
-        }
-        FilmList()
     }
 
 
-}
-
-@Composable
-fun Header() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Biểu tượng menu
-        Icon(
-            imageVector = Icons.Default.Menu,
-            contentDescription = "Menu",
-            tint = Color.Black, // Đổi màu icon thành đen
-            modifier = Modifier.size(24.dp)
-        )
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        // Tên ứng dụng
-        Text(
-            text = "",
-            fontSize = 24.sp,
-            color = Color(0xFF007ACC), // Màu xanh dương nhẹ
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f) // Đẩy thanh tìm kiếm sang phải
-        )
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        // Thanh tìm kiếm
-        Row(
-            modifier = Modifier
-                .background(Color(0xFFF0F0F0), RoundedCornerShape(12.dp)) // Màu xám nhạt
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-                .fillMaxWidth()
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search",
-                tint = Color.Black, // Đổi icon tìm kiếm thành màu đen
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Tìm kiếm",
-                color = Color.DarkGray, // Chữ xám đậm
-                fontSize = 14.sp
-            )
-        }
-    }
 }
 
 @Composable
@@ -370,11 +350,8 @@ data class Film(
 )
 
 
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewFilterScreen() {
-    SearchSceen()
+    SearchScreen()
 }

@@ -1,12 +1,10 @@
 package com.example.cinemaapp.ui.navigation
 
-import SearchSceen
+import SearchScreen
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.DetailScreen
 import com.example.cinemaapp.ui.HomeScreen
 import com.example.cinemaapp.ui.LoginPage
@@ -49,7 +47,13 @@ object AppRoute {
                 if (id == "profile") {
                     /* TODO */
                 } else if (id == "search") {
-                    SearchSceen()
+                    SearchScreen()
+                }
+            }
+            composable("${AppRouteName.Search}/{category}") { backStackEntry ->
+                val category = backStackEntry.arguments?.getString("category")
+                if (category != null) {
+                    SearchScreen(category = category)
                 }
             }
         }

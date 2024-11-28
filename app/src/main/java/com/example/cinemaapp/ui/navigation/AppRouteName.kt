@@ -8,4 +8,5 @@ object AppRouteName {
     const val Login = "/login"
     const val Register = "/register"
     const val Drawer = "/drawer"
+    const val Search = "/search"
 }

@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,7 +35,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -53,7 +51,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,14 +68,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.layout.lerp
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -165,13 +159,13 @@ fun HomeScreen(
                         )
                 ) {
                     Text(
-                        text = "Chào mừng bạn trở lại, Khách!",
+                        text = "Chào mừng bạn trở lại!",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Hãy duyệt qua những bài đánh giá gần đây",
+                        text = "Tìm kiếm hoặc duyệt qua các bộ phim tại đây",
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
@@ -189,12 +183,16 @@ fun HomeScreen(
                             text = "Thể loại",
                             style = MaterialTheme.typography.titleLarge,
                         )
-                        TextButton(onClick = { }) {
-                            Text(text = "See All")
+                        TextButton(onClick = {
+                            navController.navigate("${AppRouteName.Search}/- Tất cả -")
+                        }) {
+                            Text(text = "Xem thêm")
                         }
                     }
                     Spacer(modifier = Modifier.height(4.dp))
-                    Categories()
+                    Categories() { category ->
+                        navController.navigate("${AppRouteName.Search}/${category}")
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -207,7 +205,9 @@ fun HomeScreen(
                             text = "Đang chiếu tại rạp",
                             style = MaterialTheme.typography.titleLarge,
                         )
-                        TextButton(onClick = { }) {
+                        TextButton(onClick = {
+                            navController.navigate("${AppRouteName.Search}/- Tất cả -")
+                        }) {
                             Text(text = "Xem thêm")
                         }
                     }
@@ -227,7 +227,9 @@ fun HomeScreen(
                             text = "Tất cả các phim",
                             style = MaterialTheme.typography.titleLarge,
                         )
-                        TextButton(onClick = { }) {
+                        TextButton(onClick = {
+                            navController.navigate(AppRouteName.Search)
+                        }) {
                             Text(text = "Xem thêm")
                         }
                     }
@@ -387,7 +389,7 @@ fun NowPlayingMovie(
 }
 
 @Composable
-fun Categories() {
+fun Categories(navigateToSearch: (String) -> Unit) {
     val categories = listOf(
         "Hoạt hình",
         "Kinh dị",
@@ -413,7 +415,7 @@ fun Categories() {
                     )
                     .border(width = 1.dp, color = Gray, shape = RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(16.dp))
-                    .clickable { }
+                    .clickable {navigateToSearch(categories[index]) }
                     .padding(12.dp)
             ) {
                 Text(text = categories[index], style = MaterialTheme.typography.bodySmall)
@@ -534,8 +536,10 @@ fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun DrawerHeader(modifier: Modifier = Modifier,
-                 navController: NavHostController) {
+fun DrawerHeader(
+    modifier: Modifier = Modifier,
+    navController: NavHostController
+) {
     val context = LocalContext.current
 
 
@@ -600,16 +604,21 @@ fun DrawerHeader(modifier: Modifier = Modifier,
 }
 
 @Composable
-fun DrawerBody(drawerItems: List<DrawerItem>,
-               navController: NavHostController,
-               navigateToScreen: (DrawerItem) -> Unit) {
+fun DrawerBody(
+    drawerItems: List<DrawerItem>,
+    navController: NavHostController,
+    navigateToScreen: (DrawerItem) -> Unit
+) {
     LazyColumn {
         items(drawerItems.size) { index ->
             NavigationDrawerItem(
-                label = {Text(drawerItems[index].title)},
+                label = { Text(drawerItems[index].title) },
                 icon = {
-                    Icon(drawerItems[index].icon,
-                    contentDescription = drawerItems[index].title) },
+                    Icon(
+                        drawerItems[index].icon,
+                        contentDescription = drawerItems[index].title
+                    )
+                },
                 selected = false,
                 onClick = {
                     navigateToScreen(drawerItems[index])
@@ -618,3 +627,5 @@ fun DrawerBody(drawerItems: List<DrawerItem>,
         }
     }
 }
+
+
