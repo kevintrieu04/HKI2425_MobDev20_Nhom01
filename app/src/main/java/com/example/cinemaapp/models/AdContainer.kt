@@ -12,7 +12,7 @@ interface AdContainer {
 
 class DefaultAdContainer : AdContainer {
 
-    private val baseUrl = "https://drive.google.com/"
+    private val baseUrl = "http://10.0.2.2:5000/"
 
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
