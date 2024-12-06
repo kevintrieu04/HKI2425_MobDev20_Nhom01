@@ -12,19 +12,22 @@ import com.example.cinemaapp.ui.SeatSelectorScreen
 import com.example.cinemaapp.viewmodels.HomePageUiState
 import com.example.cinemaapp.viewmodels.HomePageViewModel
 import com.example.cinemaapp.ui.SignUpScreen
+import com.example.cinemaapp.viewmodels.SearchScreenViewModel
+
 object AppRoute {
 
     @Composable
     fun GenerateRoute(navController: NavHostController,
                       uiState: HomePageUiState,
-                      viewModel: HomePageViewModel
+                      homePageViewModel: HomePageViewModel,
+                      searchViewModel: SearchScreenViewModel
     ) {
         NavHost(
             navController = navController,
             startDestination = AppRouteName.Home
         ) {
             composable(AppRouteName.Home) {
-                HomeScreen(navController = navController, uiState = uiState, viewModel = viewModel)
+                HomeScreen(navController = navController, uiState = uiState, viewModel = homePageViewModel)
             }
             composable("${AppRouteName.Detail}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")
@@ -47,13 +50,13 @@ object AppRoute {
                 if (id == "profile") {
                     /* TODO */
                 } else if (id == "search") {
-                    SearchScreen()
+                    SearchScreen(viewModel = searchViewModel)
                 }
             }
             composable("${AppRouteName.Search}/{category}") { backStackEntry ->
                 val category = backStackEntry.arguments?.getString("category")
                 if (category != null) {
-                    SearchScreen(category = category)
+                    SearchScreen(category = category, viewModel = searchViewModel)
                 }
             }
         }
