@@ -20,7 +20,7 @@ jobs:
     steps:
       # Bước 1: Check out mã nguồn
       - name: Check out 
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -36,8 +36,8 @@ jobs:
       - name: Set up android
         uses: android-actions/setup-android@v3
         with:
-          api-level: 34
-          build-tools: 34.0.0
+          api-level: cmdline-tools-version
+          build-tools: accept-android-sdk-licenses
 
       # Bước 4: Cấp quyền thực thi cho gradlew
       - name: Grant execute permission for gradlew
@@ -47,6 +47,9 @@ jobs:
       - name: Install Dependencies
         run: ./gradlew dependencies
 
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+        
       # Bước 6: Build ứng dụng Debug
       - name: Build Debug App
         run: ./gradlew assembleDebug
