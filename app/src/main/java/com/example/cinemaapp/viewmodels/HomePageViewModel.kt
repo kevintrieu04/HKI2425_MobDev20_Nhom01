@@ -12,7 +12,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.cinemaapp.data.AdModel
 import com.example.cinemaapp.data.Film
 import com.example.cinemaapp.models.AdRepository
-import com.example.cinemaapp.models.Repository
 import com.example.cinemaapp.network.DbConnect
 import kotlinx.coroutines.launch
 
@@ -22,9 +21,11 @@ sealed interface HomePageUiState {
     data object Loading : HomePageUiState
 }
 
-class HomePageViewModel() : ViewModel() {
+class HomePageViewModel(private val ad_reo: AdRepository) : ViewModel() {
     var uiState : HomePageUiState by mutableStateOf(HomePageUiState.Loading)
     private set
+
+
 
     init {
         fetchData()
@@ -36,7 +37,7 @@ class HomePageViewModel() : ViewModel() {
             uiState = try {
                 val db = DbConnect()
                 val movies = db.readFilm()
-                HomePageUiState.Success(movies, emptyList())
+                HomePageUiState.Success(movies, ad_reo.fetchAd())
             } catch (e: Exception) {
                 HomePageUiState.Error
             }
@@ -47,9 +48,8 @@ class HomePageViewModel() : ViewModel() {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as HomePageApplication)
-                val repo = application.container.repo
                 val adRepo = application.ad_container.ad_repo
-                HomePageViewModel()
+                HomePageViewModel(adRepo)
             }
         }
     }

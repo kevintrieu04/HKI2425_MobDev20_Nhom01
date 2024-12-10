@@ -1,6 +1,7 @@
 package com.example.cinemaapp.ui
 
 
+import com.example.cinemaapp.data.Film
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -51,7 +52,6 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cinemaapp.R
-import com.example.cinemaapp.data.MovieModel
 
 import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
@@ -59,7 +59,7 @@ import com.example.cinemaapp.ui.navigation.AppRouteName
 @Composable
 fun DetailScreen(
     navController: NavHostController,
-    movie: MovieModel,
+    movie: Film
 ) {
     val scrollState = rememberScrollState()
     var comment by remember { mutableStateOf("") }
@@ -142,17 +142,17 @@ fun DetailScreen(
                             MovieInfo(
                                 painterResourceId = R.drawable.baseline_videocam,
                                 title = "Thể loại",
-                                value = movie.type
+                                value = movie.genre[0].toString()
                             )
                             MovieInfo(
                                 painterResourceId = R.drawable.baseline_access_time_filled,
                                 title = "Thời lượng",
-                                value = movie.duration
+                                value = movie.duration.toString() + " phút"
                             )
                             MovieInfo(
                                 painterResourceId = R.drawable.baseline_stars,
                                 title = "Xếp hạng",
-                                value = movie.rating,
+                                value = movie.rating.toString(),
                                 onClickableNode = {
                                     showPopup = !showPopup
                                 }
@@ -161,7 +161,7 @@ fun DetailScreen(
                     }
                     if (showPopup) {
                         StarRatingPopup(
-                            movieTitle = movie.title,
+                            movieTitle = movie.name,
                             onDismiss = { showPopup = false },
                             rank = rank,
                             onRatingSelected = { rating ->
@@ -171,7 +171,7 @@ fun DetailScreen(
                         )
                     }
                     Text(
-                        movie.title, style = MaterialTheme.typography.titleLarge,
+                        movie.name, style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(
                             horizontal = 24.dp, vertical = 16.dp
                         )
@@ -183,7 +183,7 @@ fun DetailScreen(
                         )
                     )
                     Text(
-                        movie.synopsis, style = MaterialTheme.typography.bodyMedium,
+                        movie.description, style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(
                             horizontal = 24.dp, vertical = 16.dp
                         )

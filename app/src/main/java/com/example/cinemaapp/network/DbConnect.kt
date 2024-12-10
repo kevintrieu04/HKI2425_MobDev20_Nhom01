@@ -22,12 +22,12 @@ class DbConnect {
         "name" to "The Matrix",
         "year" to 1999,
         "genre" to {"Action"},
-        "age-rating" to "R",
+        "ageRating" to "R",
         "rating" to 8.7,
         "country" to "USA",
         "views" to 1000000,
         "description" to "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
-        "img_src" to "https://www.imdb.com/title/tt0133093/mediaviewer/rm4017280512/"
+        "imgSrc" to "https://filmpravda.com/wp-content/uploads/2018/07/the-matrix.jpg"
     )
     fun addData() {
         // Add a new document with a generated ID
@@ -76,7 +76,7 @@ class DbConnect {
                     val film = document.toObject(Film::class.java)
                     film?.id = document.id
                     Log.d(TAG, "Film: $film")
-                    film?.copy(genre = film.getGenreAsList()) // Chuyển đổi genre về danh sách
+                    film?.copy() // Chuyển đổi genre về danh sách
                 } catch (e: Exception) {
                     Log.e(TAG, "Error parsing document ${document.id}: ${e.message}")
                     null // Bỏ qua các tài liệu không hợp lệ

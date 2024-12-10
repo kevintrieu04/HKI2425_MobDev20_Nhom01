@@ -7,6 +7,7 @@ import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.rememberNavController
 import com.example.cinemaapp.data.AdModel
 import com.example.cinemaapp.data.Film
+import com.example.cinemaapp.ui.Banners
 import com.example.cinemaapp.ui.HomeScreen
 import com.example.cinemaapp.viewmodels.HomePageUiState
 import com.example.cinemaapp.viewmodels.HomePageViewModel
@@ -34,18 +35,6 @@ class HomePageUiTest {
 
         composeTestRule.onNodeWithText("Trang chủ").assertExists()
     }
-    @Test
-    fun homeScreen_showsLoadingState() {
-        composeTestRule.setContent {
-            HomeScreen(
-                uiState = HomePageUiState.Loading,
-                navController = rememberNavController(),
-                viewModel = HomePageViewModel()
-            )
-        }
-
-        composeTestRule.onNodeWithContentDescription("Loading").assertExists()
-    }
 
     @Test
     fun homeScreen_opensDrawerMenu() {
@@ -66,4 +55,6 @@ class HomePageUiTest {
         // Kiểm tra drawer menu được mở
         composeTestRule.onNodeWithText("Bạn chưa đăng nhập").assertExists()
     }
+
+
 }

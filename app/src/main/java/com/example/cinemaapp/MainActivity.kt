@@ -3,6 +3,7 @@ package com.example.cinemaapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -26,16 +27,11 @@ class MainActivity : ComponentActivity() {
                 color = Color.Transparent,
                 darkIcons = true,
             )
-
-
             AppTheme {
                 /// main navigation
                 val navController = rememberNavController()
                 val viewModel: HomePageViewModel = viewModel(factory = HomePageViewModel.Factory)
                 val uiState = viewModel.uiState
-                val db = DbConnect()
-                db.addData()
-                db.readData()
                 AppRoute.GenerateRoute(navController = navController, uiState = uiState, viewModel = viewModel)
             }
         }

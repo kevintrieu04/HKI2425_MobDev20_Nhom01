@@ -83,7 +83,6 @@ import com.example.cinemaapp.R
 import com.example.cinemaapp.data.AdModel
 import com.example.cinemaapp.data.Film
 import com.example.cinemaapp.models.DrawerItem
-import com.example.cinemaapp.data.MovieModel
 import com.example.cinemaapp.models.drawerItems
 import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
@@ -217,7 +216,7 @@ fun HomeScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     NowPlayingMovie(uiState.movies) { movie ->
-                        //navController.navigate("${AppRouteName.Detail}/${movie.id}")
+                        navController.navigate("${AppRouteName.Detail}/${movie.id}")
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(
