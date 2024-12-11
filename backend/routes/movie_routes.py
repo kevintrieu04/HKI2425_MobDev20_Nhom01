@@ -15,11 +15,12 @@ def get_movies():
         for movie in movies:
             details = tmdb.movie(movie.id).details()
             duration = details.runtime if details.runtime else "Unknown duration"
+            genres = details.genres[0].name if details.genres and len(details.genres) > 0 else "Unknown genre"
             results.append({
                 "id": str(movie.id),
                 "title": movie.title or "Unknown Title",
                 "img_src": f"https://image.tmdb.org/t/p/w500{movie.poster_path or ''}",
-                "type": "Movie",
+                "type": genres,
                 "duration": f"{duration} min" if isinstance(duration, int) else duration,
                 "rating": str(movie.vote_average or "0"),
                 "synopsis": movie.overview or "No synopsis available.",
