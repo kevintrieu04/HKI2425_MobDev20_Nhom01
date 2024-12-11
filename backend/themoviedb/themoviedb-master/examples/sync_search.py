@@ -3,8 +3,8 @@ from themoviedb import TMDb
 
 
 def main():
-    tmdb = TMDb(key="YOUR_API_KEY")
-    results = tmdb.search().multi("jack")
+    tmdb = TMDb(key="3cfae25bfbc4eb423bf3c15b168982b9")
+    results = tmdb.search().multi("arcane")
     for result in results:
         if result.is_movie():
             movie = tmdb.movie(result.id).details()

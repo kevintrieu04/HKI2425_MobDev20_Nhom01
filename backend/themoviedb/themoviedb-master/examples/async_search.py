@@ -5,7 +5,7 @@ from themoviedb import aioTMDb
 
 
 async def main():
-    tmdb = aioTMDb(key="YOUR_API_KEY")
+    tmdb = aioTMDb(key="3cfae25bfbc4eb423bf3c15b168982b9")
     results = await tmdb.search().multi("jack")
     for result in results:
         if result.is_movie():
