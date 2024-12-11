@@ -1,12 +1,9 @@
-# Run backend first
+# Chạy backend đầu tiên
 
-Can python de chay backend
-
-```bash cd backend
-```bash cd movieapp
-
-
-
+-> ở backend/movieapp
+-> pip install -r requirements.txt
+-> python main.py
+The server will be available at http://localhost:5000
 # Outline bài tập lớn.
 
 
