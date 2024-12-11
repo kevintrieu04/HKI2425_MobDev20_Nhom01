@@ -6,10 +6,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class SearchModel {
-    @SerialName("query") val query: String,
-    @SerialName("category") val category: String? = null,
-    @SerialName("year") val year: String? = null,
-    @SerialName("country") val country: String? = null,
-    @SerialName("page") val page: Int = 1
+//    @SerialName("query") val query: String,
+//    @SerialName("category") val category: String? = null,
+//    @SerialName("year") val year: String? = null,
+//    @SerialName("country") val country: String? = null,
+//    @SerialName("page") val page: Int = 1
 
 }
