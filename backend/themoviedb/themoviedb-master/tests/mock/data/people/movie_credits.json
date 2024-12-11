@@ -1,0 +1,95 @@
+{
+    "cast": [
+        {
+            "character": "Tristan Ludlow",
+            "credit_id": "52fe43c4c3a36847f806e20d",
+            "release_date": "1994-12-16",
+            "vote_count": 568,
+            "video": false,
+            "adult": false,
+            "vote_average": 7.2,
+            "title": "Legends of the Fall",
+            "genre_ids": [
+                12,
+                18,
+                10749,
+                10752
+            ],
+            "original_language": "en",
+            "original_title": "Legends of the Fall",
+            "popularity": 2.356929,
+            "id": 4476,
+            "backdrop_path": "/jet7PQMY8aVzxBvkpG4P0eQI2n6.jpg",
+            "overview": "An epic tale of three brothers and their father living in the remote wilderness of 1900s USA and how their lives are affected by nature, history, war, and love.",
+            "poster_path": "/uh0sJcx3SLtclJSuKAXl6Tt6AV0.jpg"
+        },
+        {
+            "character": "Jesse James",
+            "credit_id": "52fe43c7c3a36847f806eed5",
+            "release_date": "2007-09-02",
+            "vote_count": 717,
+            "video": false,
+            "adult": false,
+            "vote_average": 7,
+            "title": "The Assassination of Jesse James by the Coward Robert Ford",
+            "genre_ids": [
+                28,
+                18,
+                37
+            ],
+            "original_language": "en",
+            "original_title": "The Assassination of Jesse James by the Coward Robert Ford",
+            "popularity": 3.294203,
+            "id": 4512,
+            "backdrop_path": "/zAh7HC8Tk2D0q3VdMOP6boqNG9N.jpg",
+            "overview": "Outlaw Jesse James is rumored be the 'fastest gun in the West'. An eager recruit into James' notorious gang, Robert Ford eventually grows jealous of the famed outlaw and, when Robert and his brother sense an opportunity to kill James, their murderous action elevates their target to near mythical status.",
+            "poster_path": "/lSFYLoaL4eW7Q5VQ7SZQP4EHRCt.jpg"
+        }
+    ],
+    "crew": [
+        {
+            "id": 76203,
+            "department": "Production",
+            "original_language": "en",
+            "original_title": "12 Years a Slave",
+            "job": "Producer",
+            "overview": "In the pre-Civil War United States, Solomon Northup, a free black man from upstate New York, is abducted and sold into slavery. Facing cruelty as well as unexpected kindnesses Solomon struggles not only to stay alive, but to retain his dignity. In the twelfth year of his unforgettable odyssey, Solomon’s chance meeting with a Canadian abolitionist will forever alter his life.",
+            "vote_count": 3284,
+            "video": false,
+            "poster_path": "/kb3X943WMIJYVg4SOAyK0pmWL5D.jpg",
+            "backdrop_path": "/xnRPoFI7wzOYviw3PmoG94X2Lnc.jpg",
+            "title": "12 Years a Slave",
+            "popularity": 6.62674,
+            "genre_ids": [
+                18,
+                36
+            ],
+            "vote_average": 7.9,
+            "adult": false,
+            "release_date": "2013-10-18",
+            "credit_id": "52fe492cc3a368484e11dfe1"
+        },
+        {
+            "id": 113833,
+            "department": "Production",
+            "original_language": "en",
+            "original_title": "The Normal Heart",
+            "job": "Producer",
+            "overview": "The story of the onset of the HIV-AIDS crisis in New York City in the early 1980s, taking an unflinching look at the nation's sexual politics as gay activists and their allies in the medical community fight to expose the truth about the burgeoning epidemic to a city and nation in denial.",
+            "vote_count": 278,
+            "video": false,
+            "poster_path": "/fIf4nLpWHK8BsbH76fPgMbLSjuU.jpg",
+            "backdrop_path": "/i5r9aTDKo1y6paUX1PHsPhZstZk.jpg",
+            "title": "The Normal Heart",
+            "popularity": 1.469766,
+            "genre_ids": [
+                18
+            ],
+            "vote_average": 7.8,
+            "adult": false,
+            "release_date": "2014-05-25",
+            "credit_id": "52fe4b3fc3a36847f81f9f89"
+        }
+    ],
+    "id": 287
+}

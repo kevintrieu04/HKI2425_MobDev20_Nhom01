@@ -1,0 +1,61 @@
+{
+    "id": 550,
+    "cast": [
+        {
+            "adult": false,
+            "gender": 2,
+            "id": 819,
+            "known_for_department": "Acting",
+            "name": "Edward Norton",
+            "original_name": "Edward Norton",
+            "popularity": 7.861,
+            "profile_path": "/5XBzD5WuTyVQZeS4VI25z2moMeY.jpg",
+            "cast_id": 4,
+            "character": "The Narrator",
+            "credit_id": "52fe4250c3a36847f80149f3",
+            "order": 0
+        },
+        {
+            "adult": false,
+            "gender": 2,
+            "id": 287,
+            "known_for_department": "Acting",
+            "name": "Brad Pitt",
+            "original_name": "Brad Pitt",
+            "popularity": 20.431,
+            "profile_path": "/cckcYc2v0yh1tc9QjRelptcOBko.jpg",
+            "cast_id": 5,
+            "character": "Tyler Durden",
+            "credit_id": "52fe4250c3a36847f80149f7",
+            "order": 1
+        }
+    ],
+    "crew": [
+        {
+            "adult": false,
+            "gender": 2,
+            "id": 376,
+            "known_for_department": "Production",
+            "name": "Arnon Milchan",
+            "original_name": "Arnon Milchan",
+            "popularity": 1.702,
+            "profile_path": "/b2hBExX4NnczNAnLuTBF4kmNhZm.jpg",
+            "credit_id": "55731b8192514111610027d7",
+            "department": "Production",
+            "job": "Executive Producer"
+        },
+        {
+            "adult": false,
+            "gender": 2,
+            "id": 605,
+            "known_for_department": "Costume & Make-Up",
+            "name": "Michael Kaplan",
+            "original_name": "Michael Kaplan",
+            "popularity": 1.38,
+            "profile_path": null,
+            "credit_id": "5894c4eac3a3685ec6000218",
+            "department": "Costume & Make-Up",
+            "job": "Costume Design"
+        }
+    ]
+}
