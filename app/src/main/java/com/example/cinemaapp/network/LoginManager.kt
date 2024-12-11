@@ -1,6 +1,7 @@
 package com.example.cinemaapp.network
 
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 
 import androidx.credentials.CustomCredential
@@ -36,16 +37,27 @@ class LoginManager(private val context: Context) {
     }
 
     fun login(email: String, password: String): Flow<AuthResponse> = callbackFlow {
+        Log.d("AuthManager", "Bắt đầu đăng nhập với email: $email")
         auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.i("AuthManager", "Đăng nhập thành công với email: $email")
                     trySend(AuthResponse.Success)
                 } else {
-                    trySend(AuthResponse.Error(it.exception?.message ?: ""))
+                    val errorMessage = task.exception?.message ?: "Lỗi không xác định"
+                    Log.w("AuthManager", "Đăng nhập thất bại: $errorMessage")
+                    trySend(AuthResponse.Error(errorMessage))
                 }
             }
-        awaitClose()
+            .addOnFailureListener { exception ->
+                Log.e("AuthManager", "Lỗi không mong muốn: ${exception.message}", exception)
+            }
+
+        awaitClose {
+            Log.d("AuthManager", "Đã kết thúc luồng đăng nhập.")
+        }
     }
+
 
     private fun createNonce(): String {
         val rawNonce = UUID.randomUUID().toString()
