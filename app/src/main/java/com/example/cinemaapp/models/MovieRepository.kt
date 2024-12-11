@@ -9,4 +9,5 @@ interface Repository {
 
 class MovieRepository (private val api: NetworkAPI): Repository {
     override suspend fun fetchData() = api.getMovies()
+
 }
