@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,13 +22,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.cinemaapp.R
+import com.example.cinemaapp.viewmodels.Film
+import com.example.cinemaapp.viewmodels.FilmRepo
+import com.example.cinemaapp.viewmodels.SearchScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(category: String = "- Tất cả -") {
+fun SearchScreen(category: String = "- Tất cả -",
+                 viewModel: SearchScreenViewModel) {
 
     var query by remember { mutableStateOf("") }
-   // var active by remember {mutableStateOf(false)}
+
+    LaunchedEffect(Unit) {
+        viewModel.resetSearchState()
+    }
 
     Scaffold(
         modifier = Modifier
@@ -39,9 +47,14 @@ fun SearchScreen(category: String = "- Tất cả -") {
             SearchBar(
                 query = query,
                 active = false,
-                onQueryChange = {query = it},
+                onQueryChange = {
+                    query = it
+                    viewModel.updateQuery(name = query)
+                                },
                 onActiveChange = {/*active = !active*/},
-                onSearch = {},
+                onSearch = {
+                    viewModel.updateQuery(name = query)
+                },
                 leadingIcon = {Icon(imageVector = Icons.Default.Search, contentDescription = "")},
                 placeholder = {Text("Tìm kiếm")},
                 modifier = Modifier.padding(horizontal = 20.dp)) {
@@ -59,7 +72,8 @@ fun SearchScreen(category: String = "- Tất cả -") {
             ) {
                 FilterDropdown(
                     title = "Loại phim:",
-                    options = listOf("- Tất cả -", "Phim Lẻ", "Phim Bộ")
+                    options = listOf("- Tất cả -", "Phim Lẻ", "Phim Bộ"),
+                    viewModel = viewModel
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 FilterDropdown(
@@ -73,8 +87,10 @@ fun SearchScreen(category: String = "- Tất cả -") {
                         "Lãng mạn",
                         "Khoa học viễn tưởng",
                         "Lịch sử",
-                        "Phiêu lưu",),
-                    defaultValue = category
+                        "Phiêu lưu",
+                        "Tài liệu"),
+                    defaultValue = category,
+                    viewModel = viewModel
                 )
 
             }
@@ -88,12 +104,14 @@ fun SearchScreen(category: String = "- Tất cả -") {
             ) {
                 FilterDropdown(
                     title = "Quốc gia:",
-                    options = listOf("- Tất cả -", "Việt Nam", "Mỹ", "Hàn Quốc", "Nhật Bản")
+                    options = listOf("- Tất cả -", "Việt Nam", "Mỹ", "Hàn Quốc", "Nhật Bản"),
+                    viewModel = viewModel
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 FilterDropdown(
                     title = "Năm:",
-                    options = listOf("- Tất cả -", "2024", "2023", "2022", "2021")
+                    options = listOf("- Tất cả -", "2024", "2023", "2022", "2021"),
+                    viewModel = viewModel
                 )
             }
 
@@ -106,15 +124,17 @@ fun SearchScreen(category: String = "- Tất cả -") {
             ) {
                 FilterDropdown(
                     title = "Thời lượng:",
-                    options = listOf("- Tất cả -", "Dưới 1 giờ", "1-2 giờ", "Trên 2 giờ")
+                    options = listOf("- Tất cả -", "Dưới 1 giờ", "1-2 giờ", "Trên 2 giờ"),
+                    viewModel = viewModel
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 FilterDropdown(
                     title = "Sắp xếp:",
-                    options = listOf("Ngày cập nhật", "Tên A-Z", "Tên Z-A", "Điểm cao nhất")
+                    options = listOf("Ngày cập nhật", "Tên A-Z", "Tên Z-A", "Điểm cao nhất"),
+                    viewModel = viewModel
                 )
             }
-            FilmList()
+            FilmList(viewModel)
         }
 
     }
@@ -123,7 +143,9 @@ fun SearchScreen(category: String = "- Tất cả -") {
 }
 
 @Composable
-fun FilterDropdown(title: String, options: List<String>, defaultValue: String = "- Tất cả -") {
+fun FilterDropdown(title: String, options: List<String>,
+                   defaultValue: String = "- Tất cả -",
+                   viewModel: SearchScreenViewModel) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf(defaultValue) }
 
@@ -163,6 +185,14 @@ fun FilterDropdown(title: String, options: List<String>, defaultValue: String = 
                     text = { Text(option, color = Color.Black) }, // Chữ trong menu là đen
                     onClick = {
                         selectedOption = option
+                        when (title) {
+                            "Loại phim:" -> viewModel.updateQuery(type = option)
+                            "Thể loại:" -> viewModel.updateQuery(category = option)
+                            "Quốc gia:" -> viewModel.updateQuery(country = option)
+                            "Năm:" -> viewModel.updateQuery(year = option)
+                            "Thời lượng:" -> viewModel.updateQuery(duration = option)
+                            "Sắp xếp:" -> viewModel.updateQuery(sort = option)
+                        }
                         expanded = false
                     }
                 )
@@ -174,12 +204,14 @@ fun FilterDropdown(title: String, options: List<String>, defaultValue: String = 
 }
 
 @Composable
-fun FilmList() {
+fun FilmList(viewModel: SearchScreenViewModel) {
+
+    val searchList by viewModel.searchList.collectAsState()
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        items(FilmRepo.filmList) { film ->
+        items(searchList) { film ->
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -220,138 +252,9 @@ fun FilmList() {
     }
 }
 
-object FilmRepo {
-    val filmList = listOf(
-        Film(
-            key = "1",
-            name = "Film 1",
-            year = 2021,
-            genre = "Action",
-            ageRating = "PG-13",
-            rating = 8.5,
-            country = "USA",
-            views = 1000,
-            description = "Description 1"
-        ),
-        Film(
-            key = "2",
-            name = "Film 2",
-            year = 2020,
-            genre = "Comedy",
-            ageRating = "PG",
-            rating = 7.2,
-            country = "UK",
-            views = 1500,
-            description = "Description 2"
-        ),
-        Film(
-            key = "3",
-            name = "Film 3",
-            year = 2019,
-            genre = "Drama",
-            ageRating = "R",
-            rating = 9.0,
-            country = "France",
-            views = 2000,
-            description = "Description 3"
-        ),
-        Film(
-            key = "4",
-            name = "Film 4",
-            year = 2018,
-            genre = "Horror",
-            ageRating = "PG-13",
-            rating = 6.8,
-            country = "Japan",
-            views = 2500,
-            description = "Description 4"
-        ),
-        Film(
-            key = "5",
-            name = "Film 5",
-            year = 2017,
-            genre = "Sci-Fi",
-            ageRating = "PG",
-            rating = 8.0,
-            country = "Canada",
-            views = 3000,
-            description = "Description 5"
-        ),
-        Film(
-            key = "6",
-            name = "Film 6",
-            year = 2016,
-            genre = "Romance",
-            ageRating = "PG-13",
-            rating = 7.5,
-            country = "India",
-            views = 3500,
-            description = "Description 6"
-        ),
-        Film(
-            key = "7",
-            name = "Film 7",
-            year = 2015,
-            genre = "Thriller",
-            ageRating = "R",
-            rating = 8.3,
-            country = "Germany",
-            views = 4000,
-            description = "Description 7"
-        ),
-        Film(
-            key = "8",
-            name = "Film 8",
-            year = 2014,
-            genre = "Animation",
-            ageRating = "G",
-            rating = 9.1,
-            country = "South Korea",
-            views = 4500,
-            description = "Description 8"
-        ),
-        Film(
-            key = "9",
-            name = "Film 9",
-            year = 2013,
-            genre = "Fantasy",
-            ageRating = "PG",
-            rating = 7.9,
-            country = "Australia",
-            views = 5000,
-            description = "Description 9"
-        ),
-        Film(
-            key = "10",
-            name = "Film 10",
-            year = 2012,
-            genre = "Documentary",
-            ageRating = "PG",
-            rating = 8.7,
-            country = "Brazil",
-            views = 5500,
-            description = "Description 10"
-        )
-    )
-}
-
-
-data class Film(
-    val key: String = "",
-    val name: String = "",
-    val year: Int = 0,
-    val genre: String = "",
-    val ageRating: String = "",
-    val rating: Double = 0.0,
-    val country: String = "",
-    val views: Int = 0,
-    val description: String = "",
-    val imgSrc: String = R.drawable.minion.toString()
-)
-
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewFilterScreen() {
-    SearchScreen()
+    SearchScreen(viewModel = SearchScreenViewModel())
 }
