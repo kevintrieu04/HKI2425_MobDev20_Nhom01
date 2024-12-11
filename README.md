@@ -1,4 +1,15 @@
+# Run backend first
+
+Can python de chay backend
+
+```bash cd backend
+```bash cd movieapp
+
+
+
 # Outline bài tập lớn.
+
+
 
 ## I. Giới thiệu chung
 File readme này sẽ nói tổng quan về dàn bài và các việc cần hoàn thiện để bọn mình bắt kịp tiến độ
