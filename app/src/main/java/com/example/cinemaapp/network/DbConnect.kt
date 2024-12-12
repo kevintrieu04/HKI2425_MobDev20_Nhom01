@@ -29,6 +29,19 @@ class DbConnect {
         "description" to "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
         "imgSrc" to "https://filmpravda.com/wp-content/uploads/2018/07/the-matrix.jpg"
     )
+    private val film1 = hashMapOf(
+        "name" to "The Shawshank Redemption",
+        "year" to 1994,
+        "genre" to {"Drama"},
+        "ageRating" to "R",
+        "rating" to 9.3,
+        "country" to "USA",
+        "views" to 20000000,
+        "description" to "Two imprisoned ",
+        "imgSrc" to "https://upload.wikimedia.org/wikipedia/vi/8/81/ShawshankRedemptionMoviePoster.jpg",
+        "isPlaying" to false,
+        "duration" to 142
+    )
     fun addData() {
         // Add a new document with a generated ID
         db.collection("person")
@@ -57,7 +70,7 @@ class DbConnect {
     suspend fun addFilm(): Boolean {
         return try {
             db.collection("film")
-                .add(film)
+                .add(film1)
                 .await()
             Log.d(TAG, "Film added successfully")
             true

@@ -1,6 +1,5 @@
 package com.example.cinemaapp.ui
 
-
 import com.example.cinemaapp.data.Film
 import android.util.Log
 import androidx.annotation.DrawableRes
@@ -52,9 +51,10 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cinemaapp.R
-
 import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun DetailScreen(
@@ -63,10 +63,59 @@ fun DetailScreen(
 ) {
     val scrollState = rememberScrollState()
     var comment by remember { mutableStateOf("") }
-
     val context = LocalContext.current
-    val manager = remember {
-        LoginManager(context)
+    val manager = remember { LoginManager(context) }
+    val firestore = FirebaseFirestore.getInstance()
+
+    val user = FirebaseAuth.getInstance().currentUser // To check if the user is logged in
+
+    // Function to post the comment to Firebase Firestore
+    fun postComment() {
+        if (comment.isNotEmpty()) {
+            // Lấy thông tin user hiện tại
+            user?.let { currentUser ->
+                firestore.collection("users")
+                    .document(currentUser.uid)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            // Lấy thông tin username và profileImage
+                            val username = document.getString("userName") ?: "Unknown User"
+                            val profileImage = document.getString("profileImage") ?: ""
+
+                            // Tạo dữ liệu bình luận
+                            val commentData = hashMapOf(
+                                "movieId" to movie.id,
+                                "userId" to currentUser.uid,
+                                "username" to username,
+                                "profileImage" to profileImage,
+                                "commentText" to comment,
+                                "timestamp" to System.currentTimeMillis()
+                            )
+
+                            // Đăng bình luận
+                            firestore.collection("comments")
+                                .add(commentData)
+                                .addOnSuccessListener {
+                                    Log.d("Comment", "Comment posted: $commentData")
+                                    comment = "" // Xóa nội dung sau khi đăng
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("Comment", "Error posting comment", e)
+                                }
+                        } else {
+                            Log.e("Comment", "User document does not exist")
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("Comment", "Error fetching user info", e)
+                    }
+            } ?: run {
+                Log.e("Comment", "User is not logged in")
+            }
+        } else {
+            Log.d("Comment", "Comment is empty")
+        }
     }
 
     Scaffold(
@@ -89,7 +138,7 @@ fun DetailScreen(
         }
     ) { padding ->
         LazyColumn {
-            // Thêm phần header
+            // Header and movie details...
             item {
                 var showPopup by remember { mutableStateOf(false) }
                 var rank by remember { mutableStateOf(0) }
@@ -97,7 +146,6 @@ fun DetailScreen(
                     modifier = Modifier
                         .padding(padding)
                         .fillMaxSize()
-//                      .verticalScroll(scrollState) có lỗi
                 ) {
                     Row(
                         modifier = Modifier.padding(
@@ -113,6 +161,7 @@ fun DetailScreen(
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(text = "Thông tin phim", style = MaterialTheme.typography.titleLarge)
                     }
+
                     Row(
                         modifier = Modifier
                             .height(320.dp)
@@ -142,7 +191,7 @@ fun DetailScreen(
                             MovieInfo(
                                 painterResourceId = R.drawable.baseline_videocam,
                                 title = "Thể loại",
-                                value = movie.genre[0].toString()
+                                value = movie.genre.toString()
                             )
                             MovieInfo(
                                 painterResourceId = R.drawable.baseline_access_time_filled,
@@ -188,72 +237,59 @@ fun DetailScreen(
                             horizontal = 24.dp, vertical = 16.dp
                         )
                     )
+
+
                     Text(
                         text = "Bình luận", style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.height(40.dp)
                     )
+
+                    // Comment input and button
                     if (manager.isLoggedIn()) {
-                    Row {
-                        Button(
-                            onClick = {},
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent
-                            ),
-                            modifier = Modifier
-//                                .padding(horizontal = 24.dp)
-                                .weight(0.13f)
-                        ) {
-                            Image(
-                                painterResource(id = R.drawable.send_button),
-                                contentDescription = "post",
-                                modifier = Modifier.size(40.dp),
-//                                contentScale = ContentScale.Fit
+                        Row {
+                            Button(
+                                onClick = { postComment() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent
+                                ),
+                                modifier = Modifier
+                                    .weight(0.13f)
+                            ) {
+                                Image(
+                                    painterResource(id = R.drawable.send_button),
+                                    contentDescription = "post",
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+
+                            TextField(
+                                value = comment,
+                                onValueChange = { comment = it },
+                                label = { Text("Nhập bình luận") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 5.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .weight(0.87f)
                             )
                         }
-
-                        TextField(
-                            value = comment,
-                            onValueChange = { comment = it },
-                            label = { Text("Nhập bình luận") },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 5.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .weight(0.87f)
-                        )
-                    } }
+                    }
                 }
-
-                // Danh sách các bộ phim
             }
-            items(sampleComments) { comment ->
-                CommentItem(comment)
 
+            item {
+                CommentScreen()
             }
-//            LazyColumn(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .weight(1f)
-//                    .padding(8.dp)
-//            ) {
-//                items(sampleComments) { comment ->
-//                    CommentItem(comment)
-//
-//                }
-//            }
         }
-//        CommentScreen(sampleComments)
     }
 }
-
-
 
 @Composable
 fun MovieInfo(
     @DrawableRes painterResourceId: Int,
     title: String,
     value: String,
-    onClickableNode:   () -> Unit = {}
+    onClickableNode: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -276,4 +312,3 @@ fun MovieInfo(
         Text(text = value, style = MaterialTheme.typography.titleMedium)
     }
 }
-

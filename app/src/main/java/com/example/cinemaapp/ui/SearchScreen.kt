@@ -15,15 +15,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.cinemaapp.R
-import com.example.cinemaapp.viewmodels.Film
-import com.example.cinemaapp.viewmodels.FilmRepo
 import com.example.cinemaapp.viewmodels.SearchScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -222,9 +223,13 @@ fun FilmList(viewModel: SearchScreenViewModel) {
                 Row(
                     verticalAlignment = Alignment.Top
                 ) {
-                    Image(
-                        painter = painterResource(id = film.imgSrc.toInt()),
-                        contentDescription = null,
+                    AsyncImage(
+                        model = ImageRequest.Builder(context = LocalContext.current)
+                            .data(film.imgSrc)
+                            .crossfade(true)
+                            .build(),
+                        error = painterResource(R.drawable.baseline_broken_image_24),
+                        contentDescription = "Movie Image",
                         modifier = Modifier
                             .background(Color.Gray),
                         contentScale = ContentScale.Crop

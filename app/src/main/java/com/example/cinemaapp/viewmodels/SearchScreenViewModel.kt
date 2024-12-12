@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cinemaapp.R
+import com.example.cinemaapp.data.Film
+import com.example.cinemaapp.network.DbConnect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -147,7 +149,6 @@ class SearchScreenViewModel (): ViewModel() {
 class SearchScreenViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
-
     private val _searchList = MutableStateFlow(FilmRepo.filmList)
     val searchList: StateFlow<List<Film>> = _searchList.asStateFlow()
 
@@ -179,11 +180,11 @@ class SearchScreenViewModel : ViewModel() {
                     .filter { type == "- Tất cả -" || it.type == type }
                     .filter { category == "- Tất cả -" || it.genre == category }
                     .filter { country == "- Tất cả -" || it.country == country }
-                    .filter { year == "- Tất cả -" || it.year == year }
+                    //.filter { year == "- Tất cả -" || it.year == year.toIntOrNull() }
                     .filter { duration == "- Tất cả -" || matchesDuration(it.duration, duration) }
-                    .let {
+                    .let { it ->
                         when (sort) {
-                            "Ngày cập nhật" -> it.sortedBy { it.key }
+                            "Ngày cập nhật" -> it.sortedBy { it.id }
                             "Tên A-Z" -> it.sortedBy { it.name }
                             "Tên Z-A" -> it.sortedByDescending { it.name }
                             else -> it.sortedByDescending { it.rating }
@@ -197,6 +198,15 @@ class SearchScreenViewModel : ViewModel() {
         _uiState.update { SearchUiState() }
         _searchList.update { FilmRepo.filmList }
     }
+    init {
+        fetchData()
+    }
+    private fun fetchData() {
+        viewModelScope.launch {
+            val db = DbConnect()
+            FilmRepo.filmList = db.readFilm()
+        }
+    }
 
 }
 
@@ -208,153 +218,7 @@ private fun matchesDuration(duration: Int, filter: String): Boolean {
         else -> true
     }
 }
-data class Film(
-    val key: String = "",
-    val name: String = "",
-    val year: String = "",
-    val type: String = "",
-    val genre: String = "",
-    val ageRating: String = "",
-    val duration: Int = 0,
-    val rating: Double = 0.0,
-    val country: String = "",
-    val views: Int = 0,
-    val description: String = "",
-    val imgSrc: String = R.drawable.minion.toString()
-)
 
 object FilmRepo {
-    val filmList = listOf(
-        Film(
-            key = "1",
-            name = "Film 1",
-            year = "2021",
-            type = "Phim Lẻ",
-            genre = "Hành Động",
-            ageRating = "PG-13",
-            duration = 110,
-            rating = 8.5,
-            country = "USA",
-            views = 1000,
-            description = "Description 1"
-        ),
-        Film(
-            key = "2",
-            name = "Film 2",
-            year = "2020",
-            type = "Phim Lẻ",
-            genre = "Hài",
-            ageRating = "PG",
-            duration = 50,
-            rating = 7.2,
-            country = "UK",
-            views = 1500,
-            description = "Description 2"
-        ),
-        Film(
-            key = "3",
-            name = "Film 3",
-            year = "2019",
-            type = "Phim Lẻ",
-            genre = "Drama",
-            ageRating = "R",
-            duration = 130,
-            rating = 9.0,
-            country = "France",
-            views = 2000,
-            description = "Description 3"
-        ),
-        Film(
-            key = "4",
-            name = "Film 4",
-            year = "2018",
-            type = "Phim Lẻ",
-            genre = "Kinh dị",
-            ageRating = "PG-13",
-            duration = 130,
-            rating = 6.8,
-            country = "Japan",
-            views = 2500,
-            description = "Description 4"
-        ),
-        Film(
-            key = "5",
-            name = "Film 5",
-            year = "2017",
-            type = "Phim Lẻ",
-            genre = "Khoa học viễn tưởng",
-            duration = 50,
-            ageRating = "PG",
-            rating = 8.0,
-            country = "Canada",
-            views = 3000,
-            description = "Description 5"
-        ),
-        Film(
-            key = "6",
-            name = "Film 6",
-            year = "2016",
-            type = "Phim Bộ",
-            duration = 90,
-            genre = "Lãng mạn",
-            ageRating = "PG-13",
-            rating = 7.5,
-            country = "India",
-            views = 3500,
-            description = "Description 6"
-        ),
-        Film(
-            key = "7",
-            name = "Film 7",
-            year = "2015",
-            type = "Phim Bộ",
-            duration = 130,
-            genre = "Hành động",
-            ageRating = "R",
-            rating = 8.3,
-            country = "Germany",
-            views = 4000,
-            description = "Description 7"
-        ),
-        Film(
-            key = "8",
-            name = "Film 8",
-            year = "2014",
-            type = "Phim Bộ",
-            duration = 90,
-            genre = "Hoạt hình",
-            ageRating = "G",
-            rating = 9.1,
-            country = "South Korea",
-            views = 4500,
-            description = "Description 8"
-        ),
-        Film(
-            key = "9",
-            name = "Film 9",
-            year = "2013",
-            type = "Phim Bộ",
-            duration = 50,
-            genre = "Khoa học viễn tưởng",
-            ageRating = "PG",
-            rating = 7.9,
-            country = "Australia",
-            views = 5000,
-            description = "Description 9"
-        ),
-        Film(
-            key = "10",
-            name = "Film 10",
-            year = "2012",
-            type = "Phim Bộ",
-            duration = 50,
-            genre = "Tài liệu",
-            ageRating = "PG",
-            rating = 8.7,
-            country = "Brazil",
-            views = 5500,
-            description = "Description 10"
-        )
-    )
-    //var searchList = filmList.toMutableStateList()
+    var filmList = listOf<Film>()
 }

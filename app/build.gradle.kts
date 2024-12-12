@@ -65,6 +65,12 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.systemuicontroller)
+    // Firebase Authentication (if not added already)
+    implementation (libs.firebase.auth.ktx)
+
+// Firebase Firestore dependency
+    implementation (libs.firebase.firestore.ktx)
+    implementation (libs.play.services.auth.v2010)
 
 
     // Retrofit
