@@ -139,13 +139,13 @@ fun ActorListLazyColumn() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewActorListLazyColumn() {
-    ActorListLazyColumn()
-}
 //@Preview(showBackground = true)
 //@Composable
-//fun PreviewActorProfileScreen() {
-//    ActorProfileScreen()
+//fun PreviewActorListLazyColumn() {
+//    ActorListLazyColumn()
 //}
+@Preview(showBackground = true)
+@Composable
+fun PreviewActorProfileScreen() {
+    ActorProfileScreen()
+}
