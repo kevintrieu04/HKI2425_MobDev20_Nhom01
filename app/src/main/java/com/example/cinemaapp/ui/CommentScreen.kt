@@ -95,7 +95,6 @@ fun getCommentsFromFirestore(): Flow<List<Comment>> {
 @Composable
 fun CommentScreen() {
     val commentsState = remember { mutableStateOf<List<Comment>>(emptyList()) }
-
     // Lấy dữ liệu bình luận từ Firestore
     LaunchedEffect(true) {
         getCommentsFromFirestore().collect { comments ->
