@@ -4,6 +4,7 @@ import kotlin.time.Duration
 
 data class Film(
     var id: String = "",
+    val type: String = "",
     val name: String = "",
     val year: Int = 0,
     val genre: String = "",
@@ -13,7 +14,7 @@ data class Film(
     val views: Int = 0,
     val description: String = "",
     val imgSrc: String = "",
-    val isPlaying: Boolean = false,
+    val isPlaying: String = "",
     val duration: Int = 0,
 )
 

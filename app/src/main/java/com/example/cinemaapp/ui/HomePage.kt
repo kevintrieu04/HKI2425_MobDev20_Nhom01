@@ -3,6 +3,7 @@ package com.example.cinemaapp.ui
 //import com.example.cinemaapp.module.home.model.nowPlayingMovie
 //import com.example.cinemaapp.module.home.model.upcoming
 
+import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -299,8 +300,11 @@ fun NowPlayingMovie(
     nowPlayingMovie: List<Film>,
     onMovieClicked: (Film) -> Unit
 ) {
+    val nowPlayingMovie2 = nowPlayingMovie
+    Log.d("now", "troll")
+    Log.d("now", "Now playing movie: $nowPlayingMovie2")
     val pagerState =
-        rememberPagerState(0, pageCount = { return@rememberPagerState nowPlayingMovie.size })
+        rememberPagerState(0, pageCount = { return@rememberPagerState nowPlayingMovie2.size })
     HorizontalPager(
         state = pagerState,
         contentPadding = PaddingValues(start = 48.dp, end = 48.dp)
@@ -324,7 +328,7 @@ fun NowPlayingMovie(
                     }
                 }
                 .clickable {
-                    onMovieClicked(nowPlayingMovie[page])
+                    onMovieClicked(nowPlayingMovie2[page])
                 },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -343,7 +347,7 @@ fun NowPlayingMovie(
                 )*/
                 AsyncImage(
                     model = ImageRequest.Builder(context = LocalContext.current)
-                        .data(nowPlayingMovie[page].imgSrc)
+                        .data(nowPlayingMovie2[page].imgSrc)
                         .crossfade(true)
                         .build(),
                     error = painterResource(R.drawable.baseline_broken_image_24),
@@ -382,7 +386,7 @@ fun NowPlayingMovie(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = nowPlayingMovie[page].name,
+                text = nowPlayingMovie2[page].name,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
