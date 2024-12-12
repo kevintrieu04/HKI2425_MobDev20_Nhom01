@@ -73,22 +73,11 @@ fun DetailScreen(
     fun postComment() {
         if (comment.isNotEmpty()) {
             // Lấy thông tin user hiện tại
-            user?.let { currentUser ->
-                firestore.collection("users")
-                    .document(currentUser.uid)
-                    .get()
-                    .addOnSuccessListener { document ->
-                        if (document.exists()) {
-                            // Lấy thông tin username và profileImage
-                            val username = document.getString("userName") ?: "Unknown User"
-                            val profileImage = document.getString("profileImage") ?: ""
 
                             // Tạo dữ liệu bình luận
                             val commentData = hashMapOf(
                                 "movieId" to movie.id,
-                                "userId" to currentUser.uid,
-                                "username" to username,
-                                "profileImage" to profileImage,
+                                "userId" to user?.uid,
                                 "commentText" to comment,
                                 "timestamp" to System.currentTimeMillis()
                             )
@@ -106,16 +95,7 @@ fun DetailScreen(
                         } else {
                             Log.e("Comment", "User document does not exist")
                         }
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("Comment", "Error fetching user info", e)
-                    }
-            } ?: run {
-                Log.e("Comment", "User is not logged in")
-            }
-        } else {
-            Log.d("Comment", "Comment is empty")
-        }
+
     }
 
     Scaffold(
