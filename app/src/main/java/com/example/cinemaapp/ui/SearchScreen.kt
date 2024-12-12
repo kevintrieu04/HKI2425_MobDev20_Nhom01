@@ -34,7 +34,9 @@ fun SearchScreen(category: String = "- Tất cả -",
     var query by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        viewModel.resetSearchState()
+        if (category == "- Tất cả -") {
+            viewModel.resetSearchState()
+        }
     }
 
     Scaffold(

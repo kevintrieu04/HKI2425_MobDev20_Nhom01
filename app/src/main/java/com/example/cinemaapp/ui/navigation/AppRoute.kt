@@ -27,7 +27,9 @@ object AppRoute {
             startDestination = AppRouteName.Home
         ) {
             composable(AppRouteName.Home) {
-                HomeScreen(navController = navController, uiState = uiState, viewModel = homePageViewModel)
+                HomeScreen(navController = navController,
+                    uiState = uiState, viewModel = homePageViewModel,
+                    searchViewModel = searchViewModel)
             }
             composable("${AppRouteName.Detail}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")
