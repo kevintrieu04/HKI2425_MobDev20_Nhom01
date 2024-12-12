@@ -1,5 +1,6 @@
 package com.example.cinemaapp.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,22 +10,25 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.cinemaapp.models.AdModel
+import com.example.cinemaapp.data.AdModel
+import com.example.cinemaapp.data.Film
 import com.example.cinemaapp.models.AdRepository
-import com.example.cinemaapp.models.MovieModel
-import com.example.cinemaapp.models.Repository
+import com.example.cinemaapp.network.DbConnect
+import com.example.cinemaapp.network.DbConnect.Companion.TAG
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 sealed interface HomePageUiState {
-    data class Success(val movies: List<MovieModel>, val ads: List<AdModel>) : HomePageUiState
+    data class Success(val movies: List<Film>, val ads: List<AdModel>) : HomePageUiState
     data object Error : HomePageUiState
     data object Loading : HomePageUiState
 }
 
-class HomePageViewModel(private val repo: Repository,
-                        private val ad_repo: AdRepository) : ViewModel() {
+class HomePageViewModel(private val ad_reo: AdRepository) : ViewModel() {
     var uiState : HomePageUiState by mutableStateOf(HomePageUiState.Loading)
     private set
+
+
 
     init {
         fetchData()
@@ -34,7 +38,11 @@ class HomePageViewModel(private val repo: Repository,
         viewModelScope.launch {
             uiState = HomePageUiState.Loading
             uiState = try {
-                HomePageUiState.Success(repo.fetchData(), ad_repo.fetchAd())
+                val db = DbConnect()
+                //val add = db.addFilm()
+                //Log.d(TAG, add.toString())
+                val movies = db.readFilm()
+                HomePageUiState.Success(movies, ad_reo.fetchAd())
             } catch (e: Exception) {
                 HomePageUiState.Error
             }
@@ -45,9 +53,8 @@ class HomePageViewModel(private val repo: Repository,
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as HomePageApplication)
-                val repo = application.container.repo
-                val ad_repo = application.ad_container.ad_repo
-                HomePageViewModel(repo = repo, ad_repo = ad_repo)
+                val adRepo = application.ad_container.ad_repo
+                HomePageViewModel(adRepo)
             }
         }
     }

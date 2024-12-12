@@ -1,5 +1,6 @@
 package com.example.cinemaapp.models
 
+import com.example.cinemaapp.data.AdModel
 import com.example.cinemaapp.network.NetworkAPI
 
 interface AdRepository {

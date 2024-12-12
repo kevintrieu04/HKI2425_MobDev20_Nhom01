@@ -65,6 +65,13 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.systemuicontroller)
+    // Firebase Authentication (if not added already)
+    implementation (libs.firebase.auth.ktx)
+
+// Firebase Firestore dependency
+    implementation (libs.firebase.firestore.ktx)
+    implementation (libs.play.services.auth.v2010)
+
 
     // Retrofit
     implementation(libs.retrofit)
@@ -96,4 +103,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation (libs.androidx.compose.ui.ui.test.junit4)
+    debugImplementation (libs.ui.test.manifest)
 }

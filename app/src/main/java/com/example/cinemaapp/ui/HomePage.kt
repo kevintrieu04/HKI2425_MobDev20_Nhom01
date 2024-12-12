@@ -3,6 +3,7 @@ package com.example.cinemaapp.ui
 //import com.example.cinemaapp.module.home.model.nowPlayingMovie
 //import com.example.cinemaapp.module.home.model.upcoming
 
+import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -70,6 +71,8 @@ import androidx.compose.ui.layout.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -78,9 +81,9 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cinemaapp.R
-import com.example.cinemaapp.models.AdModel
+import com.example.cinemaapp.data.AdModel
+import com.example.cinemaapp.data.Film
 import com.example.cinemaapp.models.DrawerItem
-import com.example.cinemaapp.models.MovieModel
 import com.example.cinemaapp.models.drawerItems
 import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
@@ -188,7 +191,8 @@ fun HomeScreen(
                         TextButton(onClick = {
                             navController.navigate("${AppRouteName.Search}/- Tất cả -")
                         }) {
-                            Text(text = "Xem thêm")
+                            Text(text = "Xem thêm",
+                                Modifier.semantics { contentDescription = "Button 1" })
                         }
                     }
                     Spacer(modifier = Modifier.height(4.dp))
@@ -252,7 +256,7 @@ fun HomeScreen(
 
 @Composable
 fun UpcomingMovie(
-    upcoming: List<MovieModel>
+    upcoming: List<Film>
 ) {
     LazyRow(
         contentPadding = PaddingValues(start = 24.dp)
@@ -281,7 +285,7 @@ fun UpcomingMovie(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = upcoming[index].title,
+                        text = upcoming[index].name,
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center
                     )
@@ -296,11 +300,14 @@ fun UpcomingMovie(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NowPlayingMovie(
-    nowPlayingMovie: List<MovieModel>,
-    onMovieClicked: (MovieModel) -> Unit
+    nowPlayingMovie: List<Film>,
+    onMovieClicked: (Film) -> Unit
 ) {
+    val nowPlayingMovie2 = nowPlayingMovie
+    Log.d("now", "troll")
+    Log.d("now", "Now playing movie: $nowPlayingMovie2")
     val pagerState =
-        rememberPagerState(0, pageCount = { return@rememberPagerState nowPlayingMovie.size })
+        rememberPagerState(0, pageCount = { return@rememberPagerState nowPlayingMovie2.size })
     HorizontalPager(
         state = pagerState,
         contentPadding = PaddingValues(start = 48.dp, end = 48.dp)
@@ -324,7 +331,7 @@ fun NowPlayingMovie(
                     }
                 }
                 .clickable {
-                    onMovieClicked(nowPlayingMovie[page])
+                    onMovieClicked(nowPlayingMovie2[page])
                 },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -343,7 +350,7 @@ fun NowPlayingMovie(
                 )*/
                 AsyncImage(
                     model = ImageRequest.Builder(context = LocalContext.current)
-                        .data(nowPlayingMovie[page].imgSrc)
+                        .data(nowPlayingMovie2[page].imgSrc)
                         .crossfade(true)
                         .build(),
                     error = painterResource(R.drawable.baseline_broken_image_24),
@@ -382,7 +389,7 @@ fun NowPlayingMovie(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = nowPlayingMovie[page].title,
+                text = nowPlayingMovie2[page].name,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
