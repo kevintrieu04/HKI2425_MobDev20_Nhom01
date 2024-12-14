@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.cinemaapp.R
+import com.example.cinemaapp.network.saveRatingToFirestore
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun StarRatingPopup(
@@ -154,7 +156,10 @@ fun StarRatingPopup10(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = onDismiss,
+                    onClick = {
+                        saveRatingToFirestore(movieTitle, rank)
+
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                 ) {
                     Text(text = "Gửi", color = Color.White)
