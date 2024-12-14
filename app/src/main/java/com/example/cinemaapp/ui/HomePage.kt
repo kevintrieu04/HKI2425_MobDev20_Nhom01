@@ -89,6 +89,7 @@ import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
 import com.example.cinemaapp.viewmodels.HomePageUiState
 import com.example.cinemaapp.viewmodels.HomePageViewModel
+import com.example.cinemaapp.viewmodels.SearchScreenViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -99,7 +100,8 @@ import kotlin.math.absoluteValue
 fun HomeScreen(
     uiState: HomePageUiState,
     navController: NavHostController,
-    viewModel: HomePageViewModel
+    viewModel: HomePageViewModel,
+    searchViewModel: SearchScreenViewModel
 ) {
     if (uiState is HomePageUiState.Success) {
         val scrollState = rememberScrollState()
@@ -196,6 +198,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     Categories() { category ->
                         navController.navigate("${AppRouteName.Search}/${category}")
+                        searchViewModel.updateQuery(category = category)
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(

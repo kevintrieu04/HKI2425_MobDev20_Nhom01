@@ -22,20 +22,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cinemaapp.R
+import com.example.cinemaapp.ui.navigation.AppRouteName
 import com.example.cinemaapp.viewmodels.SearchScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(category: String = "- Tất cả -",
-                 viewModel: SearchScreenViewModel) {
+                 viewModel: SearchScreenViewModel,
+                 navController: NavHostController) {
 
     var query by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        viewModel.resetSearchState()
+        if (category == "- Tất cả -") {
+            viewModel.resetSearchState()
+        }
     }
 
     Scaffold(
@@ -135,7 +140,7 @@ fun SearchScreen(category: String = "- Tất cả -",
                     viewModel = viewModel
                 )
             }
-            FilmList(viewModel)
+            FilmList(viewModel, navController)
         }
 
     }
@@ -205,7 +210,8 @@ fun FilterDropdown(title: String, options: List<String>,
 }
 
 @Composable
-fun FilmList(viewModel: SearchScreenViewModel) {
+fun FilmList(viewModel: SearchScreenViewModel,
+             navController: NavHostController) {
 
     val searchList by viewModel.searchList.collectAsState()
     LazyColumn(
@@ -219,6 +225,9 @@ fun FilmList(viewModel: SearchScreenViewModel) {
                     .padding(vertical = 8.dp)
                     .background(Color.White)
                     .padding(5.dp)
+                    .clickable {
+                        navController.navigate("${AppRouteName.Detail}/${film.id}")
+                    }
             ) {
                 Row(
                     verticalAlignment = Alignment.Top
@@ -262,5 +271,5 @@ fun FilmList(viewModel: SearchScreenViewModel) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewFilterScreen() {
-    SearchScreen(viewModel = SearchScreenViewModel())
+    SearchScreen(viewModel = SearchScreenViewModel(), navController = NavHostController(LocalContext.current))
 }

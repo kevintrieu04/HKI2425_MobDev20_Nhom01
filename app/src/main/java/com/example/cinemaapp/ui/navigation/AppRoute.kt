@@ -27,7 +27,9 @@ object AppRoute {
             startDestination = AppRouteName.Home
         ) {
             composable(AppRouteName.Home) {
-                HomeScreen(navController = navController, uiState = uiState, viewModel = homePageViewModel)
+                HomeScreen(navController = navController,
+                    uiState = uiState, viewModel = homePageViewModel,
+                    searchViewModel = searchViewModel)
             }
             composable("${AppRouteName.Detail}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")
@@ -50,13 +52,13 @@ object AppRoute {
                 if (id == "profile") {
                     /* TODO */
                 } else if (id == "search") {
-                    SearchScreen(viewModel = searchViewModel)
+                    SearchScreen(viewModel = searchViewModel, navController = navController)
                 }
             }
             composable("${AppRouteName.Search}/{category}") { backStackEntry ->
                 val category = backStackEntry.arguments?.getString("category")
                 if (category != null) {
-                    SearchScreen(category = category, viewModel = searchViewModel)
+                    SearchScreen(category = category, viewModel = searchViewModel, navController = navController)
                 }
             }
         }

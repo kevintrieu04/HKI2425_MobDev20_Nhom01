@@ -18,17 +18,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
+import coil.compose.rememberImagePainter
 import com.example.cinemaapp.R
 import com.example.cinemaapp.data.Comment
+import com.example.cinemaapp.ui.navigation.AppRouteName
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
@@ -36,9 +36,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 data class UserProfile(
-    val username: String = "",
-    val imgSrc: String = "", // Địa chỉ URL của ảnh đại diện người dùng
-    val userID: String = ""
+    val userName: String,
+    val profileImage: String // Địa chỉ URL của ảnh đại diện người dùng
 )
 fun getCommentsFromFirestore(): Flow<List<Comment>> {
     val firestore = FirebaseFirestore.getInstance()
@@ -50,93 +49,65 @@ fun getCommentsFromFirestore(): Flow<List<Comment>> {
                     close(exception)
                     return@addSnapshotListener
                 }
-                snapshot?.let {
-                    val comments = it.documents.mapNotNull { document ->
-                        document.toObject(Comment::class.java)
+                snapshot?.let { commentSnapshot ->
+                    val comments = mutableListOf<Comment>()
+                    val userIDs = commentSnapshot.documents.mapNotNull { document ->
+                        document.getString("userId")
+                    }.distinct()
+
+                    val userProfiles = mutableMapOf<String, UserProfile>()
+
+                    // Lấy thông tin người dùng trước
+                    val userFetchTasks = userIDs.map { userID ->
+                        firestore.collection("Users")
+                            .document(userID)
+                            .get()
+                            .continueWith { task ->
+                                if (task.isSuccessful && task.result != null) {
+                                    val userProfile = task.result.toObject(UserProfile::class.java)
+                                    if (userProfile != null) {
+                                        userProfiles[userID] = userProfile
+                                    }
+                                }
+                            }
                     }
-                    trySend(comments)
-                    Log.d("CommentScreen", "getCommentsFromFirestore: $comments")
+                    Tasks.whenAll(userFetchTasks).addOnSuccessListener {
+                        // Gắn thông tin user vào comment
+                        commentSnapshot.documents.forEach { commentDoc ->
+                            val comment = commentDoc.toObject(Comment::class.java)
+                            if (comment != null) {
+                                val userProfile = userProfiles[comment.userId]
+                                if (userProfile != null) {
+                                    comment.userName = userProfile.userName
+                                    comment.profileImage = userProfile.profileImage
+                                }
+                                comments.add(comment)
+                            }
+                        }
+                        trySend(comments.toList())
+                    }.addOnFailureListener { exception ->
+                        close(exception)
+                    }
+
                 }
             }
         awaitClose { listener.remove() }
     }
 }
 
-fun getUserInfo(userID: String, onComplete: (List<UserProfile>) -> Unit) {
-    FirebaseFirestore.getInstance().collection("user")
-        .whereEqualTo("userID", userID) // Lọc các document có trường userID trùng khớp
-        .get()
-        .addOnSuccessListener { querySnapshot ->
-            if (!querySnapshot.isEmpty) {
-                val users = querySnapshot.documents.mapNotNull { document ->
-                    document.toObject(UserProfile::class.java)
-                }
-                Log.d("Firestore", "User info: $users")
-                onComplete(users)
-            } else {
-                onComplete(emptyList()) // Không tìm thấy kết quả
-            }
-        }
-        .addOnFailureListener { e ->
-            Log.e("Firestore", "Error getting user info", e)
-            onComplete(emptyList())
-        }
-}
+
+
 
 @Composable
-fun CommentScreen() {
-    val commentsState = remember { mutableStateOf<List<Comment>>(emptyList()) }
-    val userProfilesState = remember { mutableStateOf<Map<String, UserProfile>>(emptyMap()) }
-    Log.d("CommentScreen", "CommentScreen")
-
-    // Lấy dữ liệu bình luận từ Firestore
-    LaunchedEffect(true) {
-        getCommentsFromFirestore().collect { comments ->
-            commentsState.value = comments
-
-            // Lấy thông tin người dùng cho từng userID trong các bình luận
-            val userIDs = comments.map { it.userId }.distinct()
-            val userProfiles = mutableMapOf<String, UserProfile>()
-            Log.d("CommentScreen", "UserIDs: $userIDs")
-            userIDs.forEach { userID ->
-                getUserInfo(userID) { userProfile ->
-                    if (userProfile.isNotEmpty()) {
-                        userProfiles[userID] = userProfile.firstOrNull() ?: return@getUserInfo
-                        userProfilesState.value = userProfiles.toMap()
-                    }
-                }
-            }
-        }
-    }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(8.dp)
-        ) {
-            items(commentsState.value) { comment ->
-                val userProfile = userProfilesState.value[comment.userId]
-                if (userProfile != null) {
-                    CommentItem(comment, userProfile)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CommentItem(comment: Comment, userProfile: UserProfile) {
-    Log.d("CommentScreen", "CommentItem: $comment")
+fun CommentItem(comment: Comment) {
     Row(modifier = Modifier.padding(8.dp)) {
-        AsyncImage(
-            model = ImageRequest.Builder(context = LocalContext.current)
-                .data(userProfile.imgSrc)
-                .crossfade(true)
-                .build(),
-            error = painterResource(R.drawable.baseline_broken_image_24),
-            contentDescription = "User Image",
-            contentScale = ContentScale.Crop,
+        Image(
+            painter = rememberAsyncImagePainter(comment.profileImage),
+            contentDescription = "Profile Image",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
 
         Card(
@@ -148,7 +119,7 @@ fun CommentItem(comment: Comment, userProfile: UserProfile) {
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
-                    text = userProfile.username,
+                    text = comment.userName,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
@@ -159,7 +130,7 @@ fun CommentItem(comment: Comment, userProfile: UserProfile) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Row {
                     Text(
-                        text = "Vừa xong",
+                        text = "Vừa xong", // Cập nhật thời gian hiển thị
                         color = Color.Gray,
                         fontSize = 12.sp
                     )
