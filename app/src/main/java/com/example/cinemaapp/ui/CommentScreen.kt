@@ -28,6 +28,7 @@ import coil.compose.rememberImagePainter
 import com.example.cinemaapp.R
 import com.example.cinemaapp.data.Comment
 import com.example.cinemaapp.ui.navigation.AppRouteName
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
@@ -48,43 +49,46 @@ fun getCommentsFromFirestore(): Flow<List<Comment>> {
                     close(exception)
                     return@addSnapshotListener
                 }
-                snapshot?.let {
+                snapshot?.let { commentSnapshot ->
                     val comments = mutableListOf<Comment>()
-                    val userIDs = it.documents.mapNotNull { document ->
+                    val userIDs = commentSnapshot.documents.mapNotNull { document ->
                         document.getString("userId")
                     }.distinct()
 
                     val userProfiles = mutableMapOf<String, UserProfile>()
 
                     // Lấy thông tin người dùng trước
-                    userIDs.forEach { userID ->
-                        FirebaseFirestore.getInstance().collection("Users")
+                    val userFetchTasks = userIDs.map { userID ->
+                        firestore.collection("Users")
                             .document(userID)
                             .get()
-                            .addOnSuccessListener { userDoc ->
-                                if (userDoc.exists()) {
-                                    val userProfile = userDoc.toObject(UserProfile::class.java)
+                            .continueWith { task ->
+                                if (task.isSuccessful && task.result != null) {
+                                    val userProfile = task.result.toObject(UserProfile::class.java)
                                     if (userProfile != null) {
                                         userProfiles[userID] = userProfile
                                     }
                                 }
-
-                                // Gắn thông tin user vào comment
-                                it.documents.forEach { commentDoc ->
-                                    val comment = commentDoc.toObject(Comment::class.java)
-                                    if (comment != null) {
-                                        val userProfile = userProfiles[comment.userId]
-                                        if (userProfile != null) {
-                                            comment.userName = userProfile.userName
-                                            comment.profileImage = userProfile.profileImage
-                                            comments.add(comment)
-                                        }
-                                    }
-                                }
-
-                                trySend(comments.toList())
                             }
                     }
+                    Tasks.whenAll(userFetchTasks).addOnSuccessListener {
+                        // Gắn thông tin user vào comment
+                        commentSnapshot.documents.forEach { commentDoc ->
+                            val comment = commentDoc.toObject(Comment::class.java)
+                            if (comment != null) {
+                                val userProfile = userProfiles[comment.userId]
+                                if (userProfile != null) {
+                                    comment.userName = userProfile.userName
+                                    comment.profileImage = userProfile.profileImage
+                                }
+                                comments.add(comment)
+                            }
+                        }
+                        trySend(comments.toList())
+                    }.addOnFailureListener { exception ->
+                        close(exception)
+                    }
+
                 }
             }
         awaitClose { listener.remove() }
@@ -92,28 +96,7 @@ fun getCommentsFromFirestore(): Flow<List<Comment>> {
 }
 
 
-@Composable
-fun CommentScreen() {
-    val commentsState = remember { mutableStateOf<List<Comment>>(emptyList()) }
-    // Lấy dữ liệu bình luận từ Firestore
-    LaunchedEffect(true) {
-        getCommentsFromFirestore().collect { comments ->
-            commentsState.value = comments
-        }
-    }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(8.dp)
-        ) {
-            items(commentsState.value) { comment ->
-                CommentItem(comment)
-            }
-        }
-    }
-}
 
 @Composable
 fun CommentItem(comment: Comment) {
