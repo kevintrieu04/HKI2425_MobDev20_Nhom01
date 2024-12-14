@@ -84,43 +84,13 @@ fun ActorProfileScreen() {
 }
 
 @Composable
-fun ActorListLazyColumn() {
-    val actorNames = listOf(
-        "Keanu Reeves",
-        "Scarlett Johansson",
-        "Leonardo DiCaprio",
-        "Natalie Portman",
-        "Robert Downey Jr."
-    )
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Tiêu đề
-        item {
-            Text(
-                text = "Diễn viên:",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            Divider(
-                color = Color.Gray, // Màu của đường thẳng
-                thickness = 1.dp,   // Độ dày
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp) // Khoảng cách trên dưới
-            )
-        }
-
+fun ActorItem(actor: Actor) {
         // Danh sách diễn viên
-        items(actorNames) { name ->
+
             Button(
                 onClick = {
                     // Hành động khi bấm vào nút
-                    println("$name clicked")
+                    /*ActorProfileScreen*/
                 },
                 modifier = Modifier
                     .padding(vertical = 0.dp),
@@ -131,12 +101,11 @@ fun ActorListLazyColumn() {
                 elevation = ButtonDefaults.buttonElevation(0.dp) // Loại bỏ hiệu ứng nổi
             ) {
                 Text(
-                    text = name,
+                    text = actor.name,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
-        }
-    }
+
 }
 
 //@Preview(showBackground = true)
