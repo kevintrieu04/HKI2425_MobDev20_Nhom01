@@ -1,5 +1,6 @@
 package com.example.cinemaapp.ui
 
+import ActorItem
 import com.example.cinemaapp.data.Film
 import android.util.Log
 import android.widget.Toast
@@ -49,11 +50,13 @@ import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cinemaapp.R
+import com.example.cinemaapp.data.Actor
 import com.example.cinemaapp.data.Comment
 import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.network.getCommentsFromFirestore
@@ -74,7 +77,44 @@ fun DetailScreen(
     val commentsState = remember { mutableStateOf<List<Comment>>(emptyList()) }
 
     val user = FirebaseAuth.getInstance().currentUser // To check if the user is logged in
-
+    //sample
+    val actors = listOf(
+        Actor(
+            id = "1",
+            name = "Leonardo DiCaprio",
+            age = 49,
+            bio = "Nam diễn viên người Mỹ nổi tiếng với các vai diễn trong Titanic, Inception và The Revenant.",
+            imageUrl = "https://example.com/leonardo.jpg"
+        ),
+        Actor(
+            id = "2",
+            name = "Scarlett Johansson",
+            age = 39,
+            bio = "Nữ diễn viên người Mỹ nổi bật với vai diễn Black Widow trong vũ trụ Marvel.",
+            imageUrl = "https://example.com/scarlett.jpg"
+        ),
+        Actor(
+            id = "3",
+            name = "Denzel Washington",
+            age = 69,
+            bio = "Diễn viên và đạo diễn từng đoạt giải, được biết đến qua Training Day và Malcolm X.",
+            imageUrl = "https://example.com/denzel.jpg"
+        ),
+        Actor(
+            id = "4",
+            name = "Meryl Streep",
+            age = 74,
+            bio = "Nữ diễn viên gạo cội nổi tiếng với The Devil Wears Prada và Mamma Mia!",
+            imageUrl = "https://example.com/meryl.jpg"
+        ),
+        Actor(
+            id = "5",
+            name = "Tom Hanks",
+            age = 67,
+            bio = "Diễn viên đa tài được biết đến qua Forrest Gump, Cast Away và Saving Private Ryan.",
+            imageUrl = "https://example.com/tomhanks.jpg"
+        )
+    )
     LaunchedEffect(true) {
         Log.d("LaunchedEffect", "running")
         getCommentsFromFirestore().collect { comments ->
@@ -156,9 +196,9 @@ fun DetailScreen(
                 item {
                     var showPopup by remember { mutableStateOf(false) }
                     var rank by remember { mutableStateOf(0) }
+
                     Column(
                         modifier = Modifier
-                            .padding(padding)
                             .fillMaxSize()
                     ) {
                         Row(
@@ -246,6 +286,7 @@ fun DetailScreen(
                         )
                         Text(
                             "Tóm tắt", style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(
                                 horizontal = 24.dp
                             )
@@ -256,42 +297,79 @@ fun DetailScreen(
                                 horizontal = 24.dp, vertical = 16.dp
                             )
                         )
+                    }
+                }
 
+                item {
+                    Text(
+                        text = "Diễn viên:",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                }
 
+                items(actors) { actor ->
+                    ActorItem(actor)
+                }
+
+                item {
+                    Spacer(modifier = Modifier.width(30.dp).padding(5.dp))
+                    Row {
                         Text(
                             text = "Bình luận", style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.height(40.dp)
+                                .padding(horizontal = 24.dp)
+                                .weight(0.7f)
                         )
+                        Button(
+                            onClick = { /*AicommentPopup*/ },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent, // Nền trong suốt
+                                contentColor = Color.Black          // Màu chữ
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(0.dp),
+                            modifier = Modifier
+                                .weight(0.13f)
+                        ) {
+                            Image(
+                                painterResource(id = R.drawable.bar_chart),
+                                contentDescription = "post",
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
 
-                        // Comment input and button
-                        if (manager.isLoggedIn()) {
-                            Row {
-                                Button(
-                                    onClick = { postComment() },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Transparent
-                                    ),
-                                    modifier = Modifier
-                                        .weight(0.13f)
-                                ) {
-                                    Image(
-                                        painterResource(id = R.drawable.send_button),
-                                        contentDescription = "post",
-                                        modifier = Modifier.size(40.dp)
-                                    )
-                                }
+                    }
 
-                                TextField(
-                                    value = comment,
-                                    onValueChange = { comment = it },
-                                    label = { Text("Nhập bình luận") },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 5.dp)
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .weight(0.87f)
+                    // Comment input and button
+                    if (manager.isLoggedIn()) {
+                        Row {
+                            Button(
+                                onClick = { postComment() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent
+                                ),
+                                modifier = Modifier
+                                    .weight(0.3f)
+                            ) {
+                                Image(
+                                    painterResource(id = R.drawable.send_button),
+                                    contentDescription = "post",
+                                    modifier = Modifier.size(60.dp)
                                 )
                             }
+
+                            TextField(
+                                value = comment,
+                                onValueChange = { comment = it },
+                                label = { Text("Nhập bình luận") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 5.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .weight(0.7f)
+                            )
                         }
                     }
                 }
