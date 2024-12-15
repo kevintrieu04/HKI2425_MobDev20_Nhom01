@@ -60,6 +60,7 @@ import com.example.cinemaapp.data.Comment
 import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
@@ -76,43 +77,13 @@ fun DetailScreen(
 
     val user = FirebaseAuth.getInstance().currentUser // To check if the user is logged in
     //sample
-    val actors = listOf(
-        Actor(
-            id = "1",
-            name = "Leonardo DiCaprio",
-            age = 49,
-            bio = "Nam diễn viên người Mỹ nổi tiếng với các vai diễn trong Titanic, Inception và The Revenant.",
-            imageUrl = "https://example.com/leonardo.jpg"
-        ),
-        Actor(
-            id = "2",
-            name = "Scarlett Johansson",
-            age = 39,
-            bio = "Nữ diễn viên người Mỹ nổi bật với vai diễn Black Widow trong vũ trụ Marvel.",
-            imageUrl = "https://example.com/scarlett.jpg"
-        ),
-        Actor(
-            id = "3",
-            name = "Denzel Washington",
-            age = 69,
-            bio = "Diễn viên và đạo diễn từng đoạt giải, được biết đến qua Training Day và Malcolm X.",
-            imageUrl = "https://example.com/denzel.jpg"
-        ),
-        Actor(
-            id = "4",
-            name = "Meryl Streep",
-            age = 74,
-            bio = "Nữ diễn viên gạo cội nổi tiếng với The Devil Wears Prada và Mamma Mia!",
-            imageUrl = "https://example.com/meryl.jpg"
-        ),
-        Actor(
-            id = "5",
-            name = "Tom Hanks",
-            age = 67,
-            bio = "Diễn viên đa tài được biết đến qua Forrest Gump, Cast Away và Saving Private Ryan.",
-            imageUrl = "https://example.com/tomhanks.jpg"
-        )
-    )
+    val actorsState = remember { mutableStateOf<List<Actor>>(emptyList()) }
+    LaunchedEffect(movie.id) {
+        getActorsFromFirestore(movie.id) { actors ->
+            actorsState.value = actors
+            Log.d("Actors", "Fetched ${actors.size} actors for movie ${movie.id}")
+        }
+    }
     LaunchedEffect(true) {
         Log.d("LaunchedEffect", "running")
         getCommentsFromFirestore().collect { comments ->
@@ -282,7 +253,7 @@ fun DetailScreen(
                     )
                 }
 
-                items(actors) { actor ->
+                items(actorsState.value) { actor ->
                     ActorItem(actor)
                 }
 
@@ -382,4 +353,37 @@ fun MovieInfo(
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = value, style = MaterialTheme.typography.titleMedium)
     }
+}
+fun getActorsFromFirestore(movieId: String, onActorsFetched: (List<Actor>) -> Unit) {
+    val firestore = FirebaseFirestore.getInstance()
+
+    // Bước 1: Lấy các document trong collection `film_person` có trường `film` bằng `movieId`
+    firestore.collection("film_person")
+        .whereEqualTo("film", movieId)
+        .get()
+        .addOnSuccessListener { filmPersonSnapshot ->
+            val personIds = filmPersonSnapshot.documents.mapNotNull { it.getString("person") }
+            if (personIds.isNotEmpty()) {
+                // Bước 2: Lấy thông tin diễn viên từ collection `person`
+                firestore.collection("person")
+                    .whereIn(FieldPath.documentId(), personIds)
+                    .get()
+                    .addOnSuccessListener { personSnapshot ->
+                        val actors = personSnapshot.documents.mapNotNull { document ->
+                            document.toObject(Actor::class.java)
+                        }
+                        onActorsFetched(actors)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("Firestore", "Error fetching actors", e)
+                        onActorsFetched(emptyList()) // Trả về danh sách rỗng nếu có lỗi
+                    }
+            } else {
+                onActorsFetched(emptyList()) // Không có diễn viên nào
+            }
+        }
+        .addOnFailureListener { e ->
+            Log.e("Firestore", "Error fetching film_person", e)
+            onActorsFetched(emptyList()) // Trả về danh sách rỗng nếu có lỗi
+        }
 }

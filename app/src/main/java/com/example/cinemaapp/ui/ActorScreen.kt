@@ -50,12 +50,12 @@ fun ActorProfileScreen() {
             )
         }
 
-        Divider(
-            color = Color.Gray, // Màu của đường thẳng
-            thickness = 1.dp,   // Độ dày
+        HorizontalDivider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp) // Khoảng cách trên dưới
+                .padding(vertical = 8.dp), // Khoảng cách trên dưới
+            thickness = 1.dp,   // Độ dày
+            color = Color.Gray // Màu của đường thẳng
         )
 
         // Ảnh diễn viên
