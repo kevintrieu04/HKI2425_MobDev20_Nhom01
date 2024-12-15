@@ -128,54 +128,30 @@ fun DetailScreen(
     fun postComment() {
         if (comment.isNotEmpty()) {
             // Lấy thông tin user hiện tại
-            user?.let { currentUser ->
-                firestore.collection("user")
-                    .document(currentUser.uid)
-                    .get()
-                    .addOnSuccessListener { document ->
-                        if (document.exists()) {
-                            // Lấy thông tin username và profileImage
-                            val username = document.getString("userName") ?: "Unknown User"
-                            val profileImage = document.getString("profileImage") ?: ""
 
                             // Tạo dữ liệu bình luận
                             val commentData = hashMapOf(
                                 "movieId" to movie.id,
-                                "userId" to currentUser.uid,
-                                "username" to username,
-                                "profileImage" to profileImage,
+                                "userId" to user?.uid,
                                 "commentText" to comment,
                                 "timestamp" to System.currentTimeMillis()
                             )
 
-                            // Đăng bình luận
-                            firestore.collection("comments")
-                                .add(commentData)
-                                .addOnSuccessListener {
-                                    Log.d("Comment", "Comment posted: $commentData")
-                                    Toast.makeText(context, "Bình luận thành công", Toast.LENGTH_SHORT).show()
-                                    comment = "" // Xóa nội dung sau khi đăng
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e("Comment", "Error posting comment", e)
-                                    Toast.makeText(context, "Lỗi khi đăng bình luận", Toast.LENGTH_SHORT).show()
-                                }
-                        } else {
-                            Log.e("Comment", "User document does not exist")
-                            Toast.makeText(context, "Người dùng không tồn tại", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("Comment", "Error fetching user info", e)
-                        Toast.makeText(context, "Lỗi khi lấy thông tin người dùng", Toast.LENGTH_SHORT).show()
-                    }
-            } ?: run {
-                Log.e("Comment", "User is not logged in")
-                Toast.makeText(context, "Vui lòng đăng nhập để bình luận", Toast.LENGTH_SHORT).show()
-            }
+            // Đăng bình luận
+            firestore.collection("comments")
+                .add(commentData)
+                .addOnSuccessListener {
+                    Log.d("Comment", "Comment posted: $commentData")
+                    Toast.makeText(context, "Bình luận thành công", Toast.LENGTH_SHORT).show()
+                    comment = "" // Xóa nội dung sau khi đăng
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Comment", "Error posting comment", e)
+                    Toast.makeText(context, "Lỗi khi đăng bình luận", Toast.LENGTH_SHORT).show()
+                }
         } else {
-            Log.d("Comment", "Comment is empty")
-            Toast.makeText(context, "Vui lòng nhập nội dung bình luận", Toast.LENGTH_SHORT).show()
+            Log.e("Comment", "User document does not exist")
+            Toast.makeText(context, "Người dùng không tồn tại", Toast.LENGTH_SHORT).show()
         }
     }
 

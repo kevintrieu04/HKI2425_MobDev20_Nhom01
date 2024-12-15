@@ -240,7 +240,8 @@ fun FilmList(viewModel: SearchScreenViewModel,
                         error = painterResource(R.drawable.baseline_broken_image_24),
                         contentDescription = "Movie Image",
                         modifier = Modifier
-                            .background(Color.Gray),
+                            .background(Color.Gray)
+                            .size(100.dp, 200.dp),
                         contentScale = ContentScale.Crop
                     )
                     Spacer(modifier = Modifier.width(16.dp))
