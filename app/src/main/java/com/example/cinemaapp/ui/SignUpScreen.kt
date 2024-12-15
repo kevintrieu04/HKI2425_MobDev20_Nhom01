@@ -49,6 +49,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.cinemaapp.R
 import com.example.cinemaapp.network.AuthResponse
 import com.example.cinemaapp.network.LoginManager
+import com.example.cinemaapp.ui.navigation.AppRouteName
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -186,12 +187,12 @@ fun SignUpScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
                 /*Register*/
-                    manager.createAccount(email, password)
+                    manager.createAccount(name, email, password, birthyear)
                         .onEach { respond ->
                             if (respond is AuthResponse.Success) {
                                 Toast.makeText(context, "Đăng ký thành công!", Toast.LENGTH_SHORT)
                                     .show()
-                                navController.popBackStack()
+                                navController.navigate(AppRouteName.Home)
                             } else {
                                 Toast.makeText(context, (respond as AuthResponse.Error).message, Toast.LENGTH_SHORT)
                                     .show()

@@ -1,14 +1,9 @@
 package com.example.cinemaapp.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.cinemaapp.R
 import com.example.cinemaapp.data.Film
-import com.example.cinemaapp.network.DbConnect
+import com.example.cinemaapp.network.DatabaseManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -82,7 +77,7 @@ class SearchScreenViewModel : ViewModel() {
     }
     private fun fetchData() {
         viewModelScope.launch {
-            val db = DbConnect()
+            val db = DatabaseManager()
             FilmRepo.filmList = db.readFilm()
         }
     }

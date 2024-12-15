@@ -39,64 +39,6 @@ data class UserProfile(
     val userName: String,
     val profileImage: String // Địa chỉ URL của ảnh đại diện người dùng
 )
-fun getCommentsFromFirestore(): Flow<List<Comment>> {
-    val firestore = FirebaseFirestore.getInstance()
-    return callbackFlow {
-        val listener = firestore.collection("comments")
-            .orderBy("timestamp")
-            .addSnapshotListener { snapshot, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
-                snapshot?.let { commentSnapshot ->
-                    val comments = mutableListOf<Comment>()
-                    val userIDs = commentSnapshot.documents.mapNotNull { document ->
-                        document.getString("userId")
-                    }.distinct()
-
-                    val userProfiles = mutableMapOf<String, UserProfile>()
-
-                    // Lấy thông tin người dùng trước
-                    val userFetchTasks = userIDs.map { userID ->
-                        firestore.collection("Users")
-                            .document(userID)
-                            .get()
-                            .continueWith { task ->
-                                if (task.isSuccessful && task.result != null) {
-                                    val userProfile = task.result.toObject(UserProfile::class.java)
-                                    if (userProfile != null) {
-                                        userProfiles[userID] = userProfile
-                                    }
-                                }
-                            }
-                    }
-                    Tasks.whenAll(userFetchTasks).addOnSuccessListener {
-                        // Gắn thông tin user vào comment
-                        commentSnapshot.documents.forEach { commentDoc ->
-                            val comment = commentDoc.toObject(Comment::class.java)
-                            if (comment != null) {
-                                val userProfile = userProfiles[comment.userId]
-                                if (userProfile != null) {
-                                    comment.userName = userProfile.userName
-                                    comment.profileImage = userProfile.profileImage
-                                }
-                                comments.add(comment)
-                            }
-                        }
-                        trySend(comments.toList())
-                    }.addOnFailureListener { exception ->
-                        close(exception)
-                    }
-
-                }
-            }
-        awaitClose { listener.remove() }
-    }
-}
-
-
-
 
 @Composable
 fun CommentItem(comment: Comment) {

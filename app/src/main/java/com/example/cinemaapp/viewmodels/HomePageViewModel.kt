@@ -1,6 +1,5 @@
 package com.example.cinemaapp.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,10 +12,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.cinemaapp.data.AdModel
 import com.example.cinemaapp.data.Film
 import com.example.cinemaapp.models.AdRepository
-import com.example.cinemaapp.network.DbConnect
-import com.example.cinemaapp.network.DbConnect.Companion.TAG
+import com.example.cinemaapp.network.DatabaseManager
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 sealed interface HomePageUiState {
     data class Success(val movies: List<Film>, val ads: List<AdModel>) : HomePageUiState
@@ -38,7 +35,7 @@ class HomePageViewModel(private val ad_reo: AdRepository) : ViewModel() {
         viewModelScope.launch {
             uiState = HomePageUiState.Loading
             uiState = try {
-                val db = DbConnect()
+                val db = DatabaseManager()
                 //val add = db.addFilm()
                 //Log.d(TAG, add.toString())
                 val movies = db.readFilm()
