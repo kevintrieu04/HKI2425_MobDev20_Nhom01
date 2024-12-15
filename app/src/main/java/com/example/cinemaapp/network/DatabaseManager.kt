@@ -1,6 +1,9 @@
 package com.example.cinemaapp.network
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import com.example.cinemaapp.data.Comment
 import com.example.cinemaapp.data.Film
 import com.example.cinemaapp.ui.UserProfile
@@ -171,12 +174,50 @@ fun getCommentsFromFirestore(): Flow<List<Comment>> {
 }
 
 
-fun saveRatingToFirestore(movieTitle: String, rank: Int) {
+fun saveRatingToFirestore(filmName: String, rank: Int, context: Context) {
     val firestore = FirebaseFirestore.getInstance()
     val user = FirebaseAuth.getInstance().currentUser
 
-    firestore.collection("review")
+    firestore.collection("ratings")
         .whereEqualTo("user", user?.uid)
-        .whereEqualTo("movie", movieTitle)
-    firestore.collection("")
+        .whereEqualTo("film", filmName)
+        .get()
+        .addOnSuccessListener {
+            if (it.isEmpty) {
+                val review = hashMapOf(
+                    "user" to user?.uid,
+                    "film" to filmName,
+                    "rank" to rank
+                )
+                firestore.collection("ratings")
+                    .add(review)
+                    .addOnSuccessListener {
+                        Log.d("RatingPopup", "Đánh giá đã được lưu vào Firestore")
+                        Toast.makeText(context, "Đã lưu đánh giá!", Toast.LENGTH_SHORT).show()
+                    }.addOnFailureListener {
+                        Log.e("RatingPopup", "Lỗi khi lưu đánh giá: ${it.message}")
+                        Toast.makeText(context, "Có lỗi xảy ra, vui lòng thử lại", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                val review = hashMapOf(
+                    "user" to user?.uid,
+                    "film" to filmName,
+                    "rank" to rank
+                )
+                firestore.collection("ratings")
+                    .document(it.documents[0].id)
+                    .set(review)
+                    .addOnSuccessListener {
+                        Log.d("RatingPopup", "Đánh giá đã được cập nhật vào Firestore")
+                        Toast.makeText(context, "Đã cập nhật đánh giá!", Toast.LENGTH_SHORT).show()
+                    }.addOnFailureListener {
+                        Log.e("RatingPopup", "Lỗi khi cập nhật đánh giá: ${it.message}")
+                        Toast.makeText(context, "Có lỗi xảy ra, vui lòng thử lại", Toast.LENGTH_SHORT).show()
+                    }
+            }
+        }.addOnFailureListener {
+            Log.e("RatingPopup", "Lỗi khi kiểm tra đánh giá: ${it.message}")
+            Toast.makeText(context, "Có lỗi xảy ra, vui lòng thử lại", Toast.LENGTH_SHORT).show()
+        }
+
 }

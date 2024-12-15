@@ -40,8 +40,6 @@ data class UserProfile(
     val profileImage: String // Địa chỉ URL của ảnh đại diện người dùng
 )
 
-
-
 @Composable
 fun CommentItem(comment: Comment) {
     Row(modifier = Modifier.padding(8.dp)) {
