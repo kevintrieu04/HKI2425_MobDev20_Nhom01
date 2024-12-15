@@ -3,6 +3,7 @@ package com.example.cinemaapp.ui
 import ActorItem
 import com.example.cinemaapp.data.Film
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -58,6 +59,7 @@ import com.example.cinemaapp.R
 import com.example.cinemaapp.data.Actor
 import com.example.cinemaapp.data.Comment
 import com.example.cinemaapp.network.LoginManager
+import com.example.cinemaapp.network.getCommentsFromFirestore
 import com.example.cinemaapp.ui.navigation.AppRouteName
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
@@ -206,7 +208,12 @@ fun DetailScreen(
                                     title = "Xếp hạng",
                                     value = movie.rating.toString(),
                                     onClickableNode = {
-                                        showPopup = !showPopup
+                                        if (manager.isLoggedIn()) {
+                                            showPopup = !showPopup
+                                        } else {
+                                            Toast.makeText(context, "Vui lòng đăng nhập để đánh giá", Toast.LENGTH_SHORT).show()
+                                            navController.navigate(AppRouteName.Login)
+                                        }
                                     }
                                 )
                             }
