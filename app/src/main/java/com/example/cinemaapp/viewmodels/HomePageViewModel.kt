@@ -36,13 +36,26 @@ class HomePageViewModel(private val ad_reo: AdRepository) : ViewModel() {
             uiState = HomePageUiState.Loading
             uiState = try {
                 val db = DatabaseManager()
-                //val add = db.addFilm()
-                //Log.d(TAG, add.toString())
                 val movies = db.readFilm()
                 HomePageUiState.Success(movies, ad_reo.fetchAd())
             } catch (e: Exception) {
                 HomePageUiState.Error
             }
+        }
+    }
+    fun updateRating(filmName: String, newRating: Double) {
+        val currentState = uiState
+        if (currentState is HomePageUiState.Success) {
+            // Cập nhật rating trong danh sách phim
+            val updatedMovies = currentState.movies.map { film ->
+                if (film.name == filmName) {
+                    film.copy(rating = newRating)
+                } else {
+                    film
+                }
+            }
+            // Cập nhật trạng thái
+            uiState = currentState.copy(movies = updatedMovies)
         }
     }
 

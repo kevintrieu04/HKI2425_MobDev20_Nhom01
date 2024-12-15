@@ -61,6 +61,7 @@ import com.example.cinemaapp.data.Comment
 import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.network.getCommentsFromFirestore
 import com.example.cinemaapp.ui.navigation.AppRouteName
+import com.example.cinemaapp.viewmodels.HomePageViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
@@ -68,7 +69,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 @Composable
 fun DetailScreen(
     navController: NavHostController,
-    movie: Film
+    movie: Film,
+    homePageViewModel: HomePageViewModel
 ) {
     val scrollState = rememberScrollState()
     var comment by remember { mutableStateOf("") }
@@ -88,7 +90,7 @@ fun DetailScreen(
     }
     LaunchedEffect(true) {
         Log.d("LaunchedEffect", "running")
-        getCommentsFromFirestore().collect { comments ->
+        getCommentsFromFirestore(movie.id).collect { comments ->
             commentsState.value = comments
             Log.d("LaunchedEffect", "comments: ${comments.size}")
         }
@@ -226,7 +228,8 @@ fun DetailScreen(
                                 onRatingSelected = { rating ->
                                     rank = rating
                                     Log.d("RatingPopup", "Đã chọn $rating sao")
-                                }
+                                },
+                                homePageViewModel = homePageViewModel
                             )
                         }
                         Text(
@@ -324,7 +327,7 @@ fun DetailScreen(
                         }
                     }
                 }
-
+                commentsState.value = commentsState.value.sortedByDescending { it.timestamp }
                 items(commentsState.value) { comment ->
                     CommentItem(comment)
                 }

@@ -40,13 +40,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.cinemaapp.R
 import com.example.cinemaapp.network.saveRatingToFirestore
+import com.example.cinemaapp.viewmodels.HomePageViewModel
 
 @Composable
 fun StarRatingPopup(
     movieTitle: String,
     onDismiss: () -> Unit,
     rank: Int,
-    onRatingSelected: (Int) -> Unit
+    onRatingSelected: (Int) -> Unit,
+    homePageViewModel: HomePageViewModel
 ) {
     val context = LocalContext.current
     Dialog(onDismissRequest = onDismiss) {
@@ -57,14 +59,6 @@ fun StarRatingPopup(
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-    //        Card(
-    //            modifier = Modifier
-    //                .fillMaxWidth(0.8f)
-    //                .wrapContentHeight(),
-    //            shape = RoundedCornerShape(16.dp),
-    //            colors = CardDefaults.cardColors(containerColor = Color.White),
-    //            elevation = CardDefaults.cardElevation(8.dp)
-    //        ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -99,7 +93,7 @@ fun StarRatingPopup(
 
                     Button(
                         onClick = {
-                            saveRatingToFirestore(movieTitle, rank, context)
+                            saveRatingToFirestore(movieTitle, rank, context, homePageViewModel)
                             onDismiss()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
@@ -112,99 +106,74 @@ fun StarRatingPopup(
     }
 }
 
-@Composable
-fun StarRatingPopup10(
-    movieTitle: String,
-    onDismiss: () -> Unit,
-    rank: Int,
-    onRatingSelected: (Int) -> Unit
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Box(
-            modifier = Modifier
-                .background(Color.White, shape = RoundedCornerShape(16.dp))
-                .clickable { onDismiss() }
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            //        Card(
-            //            modifier = Modifier
-            //                .fillMaxWidth(0.8f)
-            //                .wrapContentHeight(),
-            //            shape = RoundedCornerShape(16.dp),
-            //            colors = CardDefaults.cardColors(containerColor = Color.White),
-            //            elevation = CardDefaults.cardElevation(8.dp)
-            //        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Đánh giá:",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                        .align(Alignment.Start)
-                )
-
-                // Hàng nút bấm hình ngôi sao
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    repeat(5) { index ->
-                        IconButton(
-                            onClick = { onRatingSelected(index + 1) },
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "Rating Star ${index + 1}",
-                                tint = if (index < rank) Color.Black else Color.Gray
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
-                ) {
-                    Text(text = "Gửi", color = Color.White)
-                }
-            }
-            //        }
-        }
-    }
-}
-
-
-@Composable
-fun MovieRatingScreen(movieTitle: String) {
-    var showPopup by remember { mutableStateOf(false) }
-    var rank by remember { mutableStateOf(0) }
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Button(onClick = { showPopup = true }) {
-            Text(text = "Đánh giá phim")
-        }
-
-        if (showPopup) {
-            StarRatingPopup(
-                movieTitle = movieTitle,
-                onDismiss = { showPopup = false },
-                rank = rank,
-                onRatingSelected = { rating ->
-                    showPopup = false
-                    rank = rating
-                    Log.d("RatingPopup", "Đã chọn $rating sao")
-                }
-            )
-        }
-    }
-}
+//@Composable
+//fun StarRatingPopup10(
+//    movieTitle: String,
+//    onDismiss: () -> Unit,
+//    rank: Int,
+//    onRatingSelected: (Int) -> Unit
+//) {
+//    Dialog(onDismissRequest = onDismiss) {
+//        Box(
+//            modifier = Modifier
+//                .background(Color.White, shape = RoundedCornerShape(16.dp))
+//                .clickable { onDismiss() }
+//                .padding(16.dp),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            //        Card(
+//            //            modifier = Modifier
+//            //                .fillMaxWidth(0.8f)
+//            //                .wrapContentHeight(),
+//            //            shape = RoundedCornerShape(16.dp),
+//            //            colors = CardDefaults.cardColors(containerColor = Color.White),
+//            //            elevation = CardDefaults.cardElevation(8.dp)
+//            //        ) {
+//            Column(
+//                modifier = Modifier.padding(16.dp),
+//                horizontalAlignment = Alignment.CenterHorizontally
+//            ) {
+//                Text(
+//                    text = "Đánh giá:",
+//                    style = MaterialTheme.typography.titleLarge,
+//                    modifier = Modifier.padding(bottom = 16.dp)
+//                        .align(Alignment.Start)
+//                )
+//
+//                // Hàng nút bấm hình ngôi sao
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    horizontalArrangement = Arrangement.SpaceEvenly
+//                ) {
+//                    repeat(5) { index ->
+//                        IconButton(
+//                            onClick = { onRatingSelected(index + 1) },
+//                            modifier = Modifier.size(40.dp)
+//                        ) {
+//                            Icon(
+//                                imageVector = Icons.Default.Star,
+//                                contentDescription = "Rating Star ${index + 1}",
+//                                tint = if (index < rank) Color.Black else Color.Gray
+//                            )
+//                        }
+//                    }
+//                }
+//
+//                Spacer(modifier = Modifier.height(16.dp))
+//
+//                Button(
+//                    onClick = {
+//
+//                    },
+//                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+//                ) {
+//                    Text(text = "Gửi", color = Color.White)
+//                }
+//            }
+//            //        }
+//        }
+//    }
+//}
 
 @Composable
 fun AicommentPopup(
@@ -402,17 +371,3 @@ fun AicommentPopupPreview() {
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun RatingPopupPreview() {
-    var rank by remember { mutableStateOf(0) }
-    StarRatingPopup(
-        movieTitle = "Interstellar",
-        onDismiss = { /* Không làm gì trong preview */ },
-        rank = rank,
-        onRatingSelected = { rating ->
-            rank = rating
-            println("Rating selected: $rating") // Chỉ để xem trước, không có logic thực sự
-        }
-    )
-}

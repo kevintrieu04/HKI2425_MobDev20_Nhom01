@@ -39,8 +39,8 @@ import java.util.Date
 import java.util.Locale
 
 data class UserProfile(
-    val username: String = "",
-    val imgSrc: String = ""
+    val username: String = "Unknown User",
+    val imgSrc: String = "https://cdn-icons-png.flaticon.com/512/266/266033.png"
 )
 fun getCommentsFromFirestore(): Flow<List<Comment>> {
     val firestore = FirebaseFirestore.getInstance()
@@ -139,7 +139,7 @@ fun CommentItem(comment: Comment) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Row {
                     Text(
-                        text = "Vừa xong", // Cập nhật thời gian hiển thị
+                        text = formatCommentTimestamp(comment.timestamp),
                         color = Color.Gray,
                         fontSize = 12.sp
                     )
