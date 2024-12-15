@@ -155,3 +155,14 @@ fun formatCommentTimestamp(timestamp: Long): String {
         }
     }
 }
+@Preview
+@Composable
+fun CommentItemPreview() {
+    CommentItem(
+        Comment(
+            userId = "1",
+            commentText = "KuMa9B8YbccmUoPjyrjTBPOEDcq2",
+            timestamp = System.currentTimeMillis()
+        )
+    )
+}
