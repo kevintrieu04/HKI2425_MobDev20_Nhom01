@@ -33,7 +33,6 @@ import com.example.cinemaapp.R
 import com.example.cinemaapp.network.AuthResponse
 import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
-import com.example.compose.AppTheme
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -106,6 +105,7 @@ fun LoginPage (navController: NavHostController) {
         Spacer(modifier = Modifier.height(32.dp))
         Text(modifier = Modifier.clickable{
             //trang phuc hoi mat khau
+            navController.navigate(AppRouteName.Repass)
         },
             text = "Forgot password",
             textDecoration = TextDecoration.Underline)

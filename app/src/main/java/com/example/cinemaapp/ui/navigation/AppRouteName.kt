@@ -9,4 +9,5 @@ object AppRouteName {
     const val Register = "/register"
     const val Drawer = "/drawer"
     const val Search = "/search"
+    const val Repass = "/repass"
 }

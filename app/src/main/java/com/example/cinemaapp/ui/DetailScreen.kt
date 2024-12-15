@@ -59,6 +59,7 @@ import com.example.cinemaapp.R
 import com.example.cinemaapp.data.Actor
 import com.example.cinemaapp.data.Comment
 import com.example.cinemaapp.network.LoginManager
+import com.example.cinemaapp.network.checkRating
 import com.example.cinemaapp.network.getCommentsFromFirestore
 import com.example.cinemaapp.ui.navigation.AppRouteName
 import com.google.firebase.auth.FirebaseAuth
@@ -128,7 +129,7 @@ fun DetailScreen(
         if (comment.isNotEmpty()) {
             // Lấy thông tin user hiện tại
             user?.let { currentUser ->
-                firestore.collection("users")
+                firestore.collection("user")
                     .document(currentUser.uid)
                     .get()
                     .addOnSuccessListener { document ->
@@ -152,23 +153,29 @@ fun DetailScreen(
                                 .add(commentData)
                                 .addOnSuccessListener {
                                     Log.d("Comment", "Comment posted: $commentData")
+                                    Toast.makeText(context, "Bình luận thành công", Toast.LENGTH_SHORT).show()
                                     comment = "" // Xóa nội dung sau khi đăng
                                 }
                                 .addOnFailureListener { e ->
                                     Log.e("Comment", "Error posting comment", e)
+                                    Toast.makeText(context, "Lỗi khi đăng bình luận", Toast.LENGTH_SHORT).show()
                                 }
                         } else {
                             Log.e("Comment", "User document does not exist")
+                            Toast.makeText(context, "Người dùng không tồn tại", Toast.LENGTH_SHORT).show()
                         }
                     }
                     .addOnFailureListener { e ->
                         Log.e("Comment", "Error fetching user info", e)
+                        Toast.makeText(context, "Lỗi khi lấy thông tin người dùng", Toast.LENGTH_SHORT).show()
                     }
             } ?: run {
                 Log.e("Comment", "User is not logged in")
+                Toast.makeText(context, "Vui lòng đăng nhập để bình luận", Toast.LENGTH_SHORT).show()
             }
         } else {
             Log.d("Comment", "Comment is empty")
+            Toast.makeText(context, "Vui lòng nhập nội dung bình luận", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -346,7 +353,19 @@ fun DetailScreen(
                     if (manager.isLoggedIn()) {
                         Row {
                             Button(
-                                onClick = { postComment() },
+                                onClick = {
+                                    checkRating(movie.name) { result ->
+                                        if (result) {
+                                            postComment()
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                "Vui lòng đánh giá để để bình luận",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.Transparent
                                 ),

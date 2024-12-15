@@ -1,5 +1,7 @@
 package com.example.cinemaapp.ui.navigation
 
+
+
 import SearchScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -7,8 +9,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.cinemaapp.ui.DetailScreen
 import com.example.cinemaapp.ui.HomeScreen
+
+
 import com.example.cinemaapp.ui.LoginPage
+import com.example.cinemaapp.ui.RepassScreen
 import com.example.cinemaapp.ui.SeatSelectorScreen
+
+
 import com.example.cinemaapp.viewmodels.HomePageUiState
 import com.example.cinemaapp.viewmodels.HomePageViewModel
 import com.example.cinemaapp.ui.SignUpScreen
@@ -60,6 +67,9 @@ object AppRoute {
                 if (category != null) {
                     SearchScreen(category = category, viewModel = searchViewModel, navController = navController)
                 }
+            }
+            composable(AppRouteName.Repass) {
+                RepassScreen(navController = navController)
             }
         }
     }

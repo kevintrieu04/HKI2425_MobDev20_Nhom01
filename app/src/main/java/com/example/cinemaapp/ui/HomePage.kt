@@ -1,8 +1,5 @@
 package com.example.cinemaapp.ui
 
-//import com.example.cinemaapp.module.home.model.nowPlayingMovie
-//import com.example.cinemaapp.module.home.model.upcoming
-
 import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -85,6 +82,8 @@ import com.example.cinemaapp.data.AdModel
 import com.example.cinemaapp.data.Film
 import com.example.cinemaapp.models.DrawerItem
 import com.example.cinemaapp.models.drawerItems
+
+
 import com.example.cinemaapp.network.LoginManager
 import com.example.cinemaapp.ui.navigation.AppRouteName
 import com.example.cinemaapp.viewmodels.HomePageUiState
@@ -215,7 +214,8 @@ fun HomeScreen(
                         TextButton(onClick = {
                             navController.navigate("${AppRouteName.Search}/- Tất cả -")
                         }) {
-                            Text(text = "Xem thêm")
+                            Text(text = "Xem thêm",
+                                Modifier.semantics { contentDescription = "Button 2" })
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -237,7 +237,8 @@ fun HomeScreen(
                         TextButton(onClick = {
                             navController.navigate(AppRouteName.Search)
                         }) {
-                            Text(text = "Xem thêm")
+                            Text(text = "Xem thêm",
+                                Modifier.semantics { contentDescription = "Button 2" })
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -277,7 +278,7 @@ fun UpcomingMovie(
                             .crossfade(true)
                             .build(),
                         error = painterResource(R.drawable.baseline_broken_image_24),
-                        contentDescription = "Movie Image",
+                        contentDescription = "Upcoming Movie Image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth(fraction = 0.85f)
@@ -483,7 +484,7 @@ fun Banners(banners: List<AdModel>) {
                     .crossfade(true)
                     .build(),
                 error = painterResource(R.drawable.baseline_broken_image_24),
-                contentDescription = "Movie Image",
+                contentDescription = "",
                 contentScale = ContentScale.Crop,
             )
         }
@@ -584,7 +585,7 @@ fun DrawerHeader(
                             .crossfade(true)
                             .build(),
                         error = painterResource(R.drawable.baseline_broken_image_24),
-                        contentDescription = "Movie Image",
+                        contentDescription = "",
                         modifier = Modifier.size(100.dp),
                         contentScale = ContentScale.Crop,
                     )

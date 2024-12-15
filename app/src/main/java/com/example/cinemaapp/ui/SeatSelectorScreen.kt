@@ -225,7 +225,9 @@ fun SeatSelectorScreen(
                                 containerColor = MaterialTheme.colorScheme.tertiary
                             ),
                             shape = RoundedCornerShape(32.dp),
-                            onClick = {},
+                            onClick = {
+
+                            },
                         ) {
                             Text("Tiếp tục")
                         }

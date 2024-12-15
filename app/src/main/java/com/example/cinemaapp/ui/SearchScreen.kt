@@ -56,7 +56,7 @@ fun SearchScreen(category: String = "- Tất cả -",
                 onQueryChange = {
                     query = it
                     viewModel.updateQuery(name = query)
-                                },
+                },
                 onActiveChange = {/*active = !active*/},
                 onSearch = {
                     viewModel.updateQuery(name = query)

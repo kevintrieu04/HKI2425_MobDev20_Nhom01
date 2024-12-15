@@ -1,6 +1,7 @@
 package com.example.cinemaapp.network
 
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 
 import androidx.credentials.CustomCredential
@@ -24,6 +25,7 @@ import java.util.UUID
 class LoginManager(private val context: Context) {
     private val auth = Firebase.auth
     private val firestore = Firebase.firestore
+
     fun createAccount(name: String, email: String, password: String, birth_year: String): Flow<AuthResponse> = callbackFlow {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
@@ -34,10 +36,10 @@ class LoginManager(private val context: Context) {
                         .document(firebaseUser?.uid ?: "")
                         .set(hashMapOf("imgSrc" to "",
                             "userID" to firebaseUser?.uid,
-                            "name" to name,
+                            "displayName" to name,
                             "email" to email,
                             "birth_year" to birth_year,
-                            "imgSrc" to ""))
+                            "photoUrl" to ""))
                         .addOnSuccessListener {
                             trySend(AuthResponse.Success)
                         }
@@ -144,6 +146,7 @@ class LoginManager(private val context: Context) {
 
     fun getUserInfo(): UserModel? {
         val user = auth.currentUser ?: return null
+        Log.d("TAG", user.displayName.toString())
         return UserModel(
             name = user.displayName ?: "",
             email = user.email ?: "",
@@ -152,6 +155,15 @@ class LoginManager(private val context: Context) {
     }
 
     fun logout() = auth.signOut()
+
+    fun resetPassword(email: String, sendToast: () -> Unit) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    sendToast()
+                }
+            }
+    }
 }
 
 

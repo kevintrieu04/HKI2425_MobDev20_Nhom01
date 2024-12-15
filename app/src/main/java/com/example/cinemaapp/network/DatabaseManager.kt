@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
 
 class DatabaseManager {
 
@@ -219,5 +220,20 @@ fun saveRatingToFirestore(filmName: String, rank: Int, context: Context) {
             Log.e("RatingPopup", "Lỗi khi kiểm tra đánh giá: ${it.message}")
             Toast.makeText(context, "Có lỗi xảy ra, vui lòng thử lại", Toast.LENGTH_SHORT).show()
         }
+}
 
+fun checkRating(filmName: String, onCallback: (Boolean) -> Unit) {
+
+    val firestore = FirebaseFirestore.getInstance()
+    val user = FirebaseAuth.getInstance().currentUser
+    val task = firestore.collection("ratings")
+        .whereEqualTo("user", user?.uid)
+        .whereEqualTo("film", filmName)
+        .get()
+        .addOnSuccessListener {
+            val result = !it.isEmpty
+            onCallback(result)
+        }.addOnFailureListener {
+            onCallback(false)
+        }
 }
