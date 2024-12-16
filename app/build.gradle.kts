@@ -97,12 +97,7 @@ dependencies {
 
     testImplementation (libs.junit)
     androidTestImplementation (libs.androidx.ui.test.junit4.v150)
-
-
-    testImplementation (libs.mockito.core)
-
-// Mockito Kotlin (For better Kotlin support)
-    testImplementation (libs.x.x.x)
+    androidTestImplementation(libs.androidx.junit)
 
 // Compose Testing
     androidTestImplementation (libs.androidx.ui.test.junit4.v151)
