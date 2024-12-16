@@ -25,8 +25,6 @@ class HomePageViewModel(private val ad_reo: AdRepository) : ViewModel() {
     var uiState : HomePageUiState by mutableStateOf(HomePageUiState.Loading)
     private set
 
-
-
     init {
         fetchData()
     }
