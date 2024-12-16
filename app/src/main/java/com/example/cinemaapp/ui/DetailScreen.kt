@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -306,15 +307,18 @@ fun DetailScreen(
                             Button(
                                 onClick = { postComment() },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Transparent
+                                    containerColor = Color.Transparent,
                                 ),
                                 modifier = Modifier
-                                    .weight(0.3f)
+                                    .weight(0.15f)
+                                    .align(Alignment.CenterVertically)
+                                    .height(40.dp)
                             ) {
                                 Image(
                                     painterResource(id = R.drawable.send_button),
                                     contentDescription = "post",
                                     modifier = Modifier.size(60.dp)
+                                        .align(Alignment.CenterVertically)
                                 )
                             }
 
@@ -326,7 +330,7 @@ fun DetailScreen(
                                     .fillMaxWidth()
                                     .padding(horizontal = 5.dp)
                                     .clip(RoundedCornerShape(16.dp))
-                                    .weight(0.7f)
+                                    .weight(0.85f)
                             )
                         }
                     }

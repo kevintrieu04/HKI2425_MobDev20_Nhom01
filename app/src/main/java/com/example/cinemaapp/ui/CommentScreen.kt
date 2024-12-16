@@ -42,6 +42,7 @@ data class UserProfile(
     val username: String = "Unknown User",
     val imgSrc: String = "https://cdn-icons-png.flaticon.com/512/266/266033.png"
 )
+
 fun getCommentsFromFirestore(): Flow<List<Comment>> {
     val firestore = FirebaseFirestore.getInstance()
     return callbackFlow {
