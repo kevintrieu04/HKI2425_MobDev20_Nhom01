@@ -99,17 +99,12 @@ fun DetailScreen(
     // Function to post the comment to Firebase Firestore
     fun postComment() {
         if (comment.isNotEmpty()) {
-            // Lấy thông tin user hiện tại
-
-                            // Tạo dữ liệu bình luận
                             val commentData = hashMapOf(
                                 "movieId" to movie.id,
                                 "userId" to user?.uid,
                                 "commentText" to comment,
                                 "timestamp" to System.currentTimeMillis()
                             )
-
-                            // Đăng bình luận
                             firestore.collection("comments")
                                 .add(commentData)
                                 .addOnSuccessListener {
@@ -122,7 +117,6 @@ fun DetailScreen(
                         } else {
                             Log.e("Comment", "User document does not exist")
                         }
-
     }
 
     Scaffold(
@@ -277,24 +271,34 @@ fun DetailScreen(
                                 .padding(horizontal = 24.dp)
                                 .weight(0.7f)
                         )
+                        val showPopup = remember { mutableStateOf(false) }
+
+                        // Giao diện Button
                         Button(
-                            onClick = { /*AicommentPopup*/ },
+                            onClick = { showPopup.value = true }, // Khi nhấn Button, hiển thị Popup
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Transparent, // Nền trong suốt
                                 contentColor = Color.Black          // Màu chữ
                             ),
                             elevation = ButtonDefaults.buttonElevation(0.dp),
-                            modifier = Modifier
-                                .weight(0.13f)
+                            modifier = Modifier.weight(0.13f)
                         ) {
                             Image(
-                                painterResource(id = R.drawable.bar_chart),
+                                painter = painterResource(id = R.drawable.bar_chart),
                                 contentDescription = "post",
                                 modifier = Modifier.size(40.dp)
                             )
                         }
 
+                        // Hiển thị Popup khi `showPopup` là `true`
+                        if (showPopup.value) {
+                            AicommentPopup(
+                                onDismiss = { showPopup.value = false }, // Đóng popup khi nhấn ra ngoài hoặc hoàn thành
+                                movieId = movie.id,
+                            )
+                        }
                     }
+
 
                     // Comment input and button
                     if (manager.isLoggedIn()) {
