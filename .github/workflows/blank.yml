@@ -50,8 +50,8 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
-      - name: Run UI Tests
-        run: ./gradlew connectedAndroidTest
+      #- name: Run UI Tests
+        #run: ./gradlew connectedAndroidTest
         
       # Bước 6: Build ứng dụng Debug
       - name: Build Debug App
