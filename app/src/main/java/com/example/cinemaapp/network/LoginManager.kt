@@ -13,6 +13,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -22,12 +23,27 @@ import java.util.UUID
 
 class LoginManager(private val context: Context) {
     private val auth = Firebase.auth
-
-    fun createAccount(email: String, password: String): Flow<AuthResponse> = callbackFlow {
+    private val firestore = Firebase.firestore
+    fun createAccount(name: String, email: String, password: String, birth_year: String): Flow<AuthResponse> = callbackFlow {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    trySend(AuthResponse.Success)
+                    val firebaseUser = auth.currentUser
+
+                    firestore.collection("user")
+                        .document(firebaseUser?.uid ?: "")
+                        .set(hashMapOf("imgSrc" to "",
+                            "userID" to firebaseUser?.uid,
+                            "name" to name,
+                            "email" to email,
+                            "birth_year" to birth_year,
+                            "imgSrc" to ""))
+                        .addOnSuccessListener {
+                            trySend(AuthResponse.Success)
+                        }
+                        .addOnFailureListener { error ->
+                            trySend(AuthResponse.Error(error.message ?: ""))
+                        }
                 } else {
                     trySend(AuthResponse.Error(it.exception?.message ?: ""))
                 }
@@ -86,7 +102,26 @@ class LoginManager(private val context: Context) {
                         auth.signInWithCredential(firebaseCredential)
                             .addOnCompleteListener {
                                 if (it.isSuccessful) {
-                                    trySend(AuthResponse.Success)
+                                    val firebaseUser = auth.currentUser
+                                    val email = firebaseUser?.email
+                                    val photoUrl = firebaseUser?.photoUrl.toString()
+                                    val uid = firebaseUser?.uid
+                                    val name = firebaseUser?.displayName
+
+                                    firestore.collection("user")
+                                        .document(uid ?: "")
+                                        .set(hashMapOf("imgSrc" to "",
+                                            "userID" to uid,
+                                            "name" to name,
+                                            "email" to email,
+                                            "birth_year" to "",
+                                            "imgSrc" to photoUrl))
+                                        .addOnSuccessListener {
+                                            trySend(AuthResponse.Success)
+                                        }
+                                        .addOnFailureListener { error ->
+                                            trySend(AuthResponse.Error(error.message ?: ""))
+                                        }
                                 } else {
                                     trySend(AuthResponse.Error(it.exception?.message ?: ""))
                                 }

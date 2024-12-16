@@ -3,6 +3,7 @@ package com.example.cinemaapp.ui
 import ActorItem
 import com.example.cinemaapp.data.Film
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -59,14 +60,18 @@ import com.example.cinemaapp.R
 import com.example.cinemaapp.data.Actor
 import com.example.cinemaapp.data.Comment
 import com.example.cinemaapp.network.LoginManager
+import com.example.cinemaapp.network.getCommentsFromFirestore
 import com.example.cinemaapp.ui.navigation.AppRouteName
+import com.example.cinemaapp.viewmodels.HomePageViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun DetailScreen(
     navController: NavHostController,
-    movie: Film
+    movie: Film,
+    homePageViewModel: HomePageViewModel
 ) {
     val scrollState = rememberScrollState()
     var comment by remember { mutableStateOf("") }
@@ -77,46 +82,16 @@ fun DetailScreen(
 
     val user = FirebaseAuth.getInstance().currentUser // To check if the user is logged in
     //sample
-    val actors = listOf(
-        Actor(
-            id = "1",
-            name = "Leonardo DiCaprio",
-            age = 49,
-            bio = "Nam diễn viên người Mỹ nổi tiếng với các vai diễn trong Titanic, Inception và The Revenant.",
-            imageUrl = "https://example.com/leonardo.jpg"
-        ),
-        Actor(
-            id = "2",
-            name = "Scarlett Johansson",
-            age = 39,
-            bio = "Nữ diễn viên người Mỹ nổi bật với vai diễn Black Widow trong vũ trụ Marvel.",
-            imageUrl = "https://example.com/scarlett.jpg"
-        ),
-        Actor(
-            id = "3",
-            name = "Denzel Washington",
-            age = 69,
-            bio = "Diễn viên và đạo diễn từng đoạt giải, được biết đến qua Training Day và Malcolm X.",
-            imageUrl = "https://example.com/denzel.jpg"
-        ),
-        Actor(
-            id = "4",
-            name = "Meryl Streep",
-            age = 74,
-            bio = "Nữ diễn viên gạo cội nổi tiếng với The Devil Wears Prada và Mamma Mia!",
-            imageUrl = "https://example.com/meryl.jpg"
-        ),
-        Actor(
-            id = "5",
-            name = "Tom Hanks",
-            age = 67,
-            bio = "Diễn viên đa tài được biết đến qua Forrest Gump, Cast Away và Saving Private Ryan.",
-            imageUrl = "https://example.com/tomhanks.jpg"
-        )
-    )
+    val actorsState = remember { mutableStateOf<List<Actor>>(emptyList()) }
+    LaunchedEffect(movie.id) {
+        getActorsFromFirestore(movie.id) { actors ->
+            actorsState.value = actors
+            Log.d("Actors", "Fetched ${actors.size} actors for movie ${movie.id}")
+        }
+    }
     LaunchedEffect(true) {
         Log.d("LaunchedEffect", "running")
-        getCommentsFromFirestore().collect { comments ->
+        getCommentsFromFirestore(movie.id).collect { comments ->
             commentsState.value = comments
             Log.d("LaunchedEffect", "comments: ${comments.size}")
         }
@@ -125,28 +100,12 @@ fun DetailScreen(
     // Function to post the comment to Firebase Firestore
     fun postComment() {
         if (comment.isNotEmpty()) {
-            // Lấy thông tin user hiện tại
-            user?.let { currentUser ->
-                firestore.collection("users")
-                    .document(currentUser.uid)
-                    .get()
-                    .addOnSuccessListener { document ->
-                        if (document.exists()) {
-                            // Lấy thông tin username và profileImage
-                            val username = document.getString("userName") ?: "Unknown User"
-                            val profileImage = document.getString("profileImage") ?: ""
-
-                            // Tạo dữ liệu bình luận
                             val commentData = hashMapOf(
                                 "movieId" to movie.id,
-                                "userId" to currentUser.uid,
-                                "username" to username,
-                                "profileImage" to profileImage,
+                                "userId" to user?.uid,
                                 "commentText" to comment,
                                 "timestamp" to System.currentTimeMillis()
                             )
-
-                            // Đăng bình luận
                             firestore.collection("comments")
                                 .add(commentData)
                                 .addOnSuccessListener {
@@ -159,16 +118,6 @@ fun DetailScreen(
                         } else {
                             Log.e("Comment", "User document does not exist")
                         }
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("Comment", "Error fetching user info", e)
-                    }
-            } ?: run {
-                Log.e("Comment", "User is not logged in")
-            }
-        } else {
-            Log.d("Comment", "Comment is empty")
-        }
     }
 
     Scaffold(
@@ -256,7 +205,12 @@ fun DetailScreen(
                                     title = "Xếp hạng",
                                     value = movie.rating.toString(),
                                     onClickableNode = {
-                                        showPopup = !showPopup
+                                        if (manager.isLoggedIn()) {
+                                            showPopup = !showPopup
+                                        } else {
+                                            Toast.makeText(context, "Vui lòng đăng nhập để đánh giá", Toast.LENGTH_SHORT).show()
+                                            navController.navigate(AppRouteName.Login)
+                                        }
                                     }
                                 )
                             }
@@ -269,7 +223,8 @@ fun DetailScreen(
                                 onRatingSelected = { rating ->
                                     rank = rating
                                     Log.d("RatingPopup", "Đã chọn $rating sao")
-                                }
+                                },
+                                homePageViewModel = homePageViewModel
                             )
                         }
                         Text(
@@ -303,7 +258,7 @@ fun DetailScreen(
                     )
                 }
 
-                items(actors) { actor ->
+                items(actorsState.value) { actor ->
                     ActorItem(actor)
                 }
 
@@ -317,24 +272,34 @@ fun DetailScreen(
                                 .padding(horizontal = 24.dp)
                                 .weight(0.7f)
                         )
+                        val showPopup = remember { mutableStateOf(false) }
+
+                        // Giao diện Button
                         Button(
-                            onClick = { /*AicommentPopup*/ },
+                            onClick = { showPopup.value = true }, // Khi nhấn Button, hiển thị Popup
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Transparent, // Nền trong suốt
                                 contentColor = Color.Black          // Màu chữ
                             ),
                             elevation = ButtonDefaults.buttonElevation(0.dp),
-                            modifier = Modifier
-                                .weight(0.13f)
+                            modifier = Modifier.weight(0.13f)
                         ) {
                             Image(
-                                painterResource(id = R.drawable.bar_chart),
+                                painter = painterResource(id = R.drawable.bar_chart),
                                 contentDescription = "post",
                                 modifier = Modifier.size(40.dp)
                             )
                         }
 
+                        // Hiển thị Popup khi `showPopup` là `true`
+                        if (showPopup.value) {
+                            AicommentPopup(
+                                onDismiss = { showPopup.value = false }, // Đóng popup khi nhấn ra ngoài hoặc hoàn thành
+                                movieId = movie.id,
+                            )
+                        }
                     }
+
 
                     // Comment input and button
                     if (manager.isLoggedIn()) {
@@ -370,7 +335,7 @@ fun DetailScreen(
                         }
                     }
                 }
-
+                commentsState.value = commentsState.value.sortedByDescending { it.timestamp }
                 items(commentsState.value) { comment ->
                     CommentItem(comment)
                 }
@@ -406,4 +371,37 @@ fun MovieInfo(
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = value, style = MaterialTheme.typography.titleMedium)
     }
+}
+fun getActorsFromFirestore(movieId: String, onActorsFetched: (List<Actor>) -> Unit) {
+    val firestore = FirebaseFirestore.getInstance()
+
+    // Bước 1: Lấy các document trong collection `film_person` có trường `film` bằng `movieId`
+    firestore.collection("film_person")
+        .whereEqualTo("film", movieId)
+        .get()
+        .addOnSuccessListener { filmPersonSnapshot ->
+            val personIds = filmPersonSnapshot.documents.mapNotNull { it.getString("person") }
+            if (personIds.isNotEmpty()) {
+                // Bước 2: Lấy thông tin diễn viên từ collection `person`
+                firestore.collection("person")
+                    .whereIn(FieldPath.documentId(), personIds)
+                    .get()
+                    .addOnSuccessListener { personSnapshot ->
+                        val actors = personSnapshot.documents.mapNotNull { document ->
+                            document.toObject(Actor::class.java)
+                        }
+                        onActorsFetched(actors)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("Firestore", "Error fetching actors", e)
+                        onActorsFetched(emptyList()) // Trả về danh sách rỗng nếu có lỗi
+                    }
+            } else {
+                onActorsFetched(emptyList()) // Không có diễn viên nào
+            }
+        }
+        .addOnFailureListener { e ->
+            Log.e("Firestore", "Error fetching film_person", e)
+            onActorsFetched(emptyList()) // Trả về danh sách rỗng nếu có lỗi
+        }
 }

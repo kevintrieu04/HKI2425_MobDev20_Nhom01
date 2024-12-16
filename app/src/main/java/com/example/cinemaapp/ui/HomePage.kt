@@ -76,6 +76,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -235,13 +236,15 @@ fun HomeScreen(
                             style = MaterialTheme.typography.titleLarge,
                         )
                         TextButton(onClick = {
-                            navController.navigate(AppRouteName.Search)
+                            navController.navigate("${AppRouteName.Search}/- Tất cả -")
                         }) {
                             Text(text = "Xem thêm")
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    UpcomingMovie(uiState.movies)
+                    UpcomingMovie(uiState.movies){ movie ->
+                        navController.navigate("${AppRouteName.Detail}/${movie.id}")
+                    }
                 }
             }
         }
@@ -256,42 +259,74 @@ fun HomeScreen(
 
 @Composable
 fun UpcomingMovie(
-    upcoming: List<Film>
+    upcoming: List<Film>,
+    onMovieClicked: (Film) -> Unit
 ) {
-    LazyRow(
-        contentPadding = PaddingValues(start = 24.dp)
-    ) {
-        items(count = upcoming.size) { index ->
-            Box(modifier = Modifier
-                .padding(end = 24.dp)
-                .clickable { }
-                .clip(RoundedCornerShape(16.dp))
-            ) {
-                Column(
-                    modifier = Modifier.wrapContentHeight(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context = LocalContext.current)
-                            .data(upcoming[index].imgSrc)
-                            .crossfade(true)
-                            .build(),
-                        error = painterResource(R.drawable.baseline_broken_image_24),
-                        contentDescription = "Movie Image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth(fraction = 0.85f)
-                            .height(340.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = upcoming[index].name,
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+    val nowPlayingMovie2 = upcoming
+    Log.d("now", "troll")
+    Log.d("now", "Now playing movie: $nowPlayingMovie2")
+    val pagerState =
+        rememberPagerState(0, pageCount = { return@rememberPagerState nowPlayingMovie2.size })
+    HorizontalPager(
+        state = pagerState,
+        contentPadding = PaddingValues(start = 48.dp, end = 48.dp)
+    ) { page ->
+
+        Column(
+            modifier = Modifier
+                .wrapContentHeight()
+                .graphicsLayer {
+                    val pageOffset = (
+                            (pagerState.currentPage - page) + pagerState
+                                .currentPageOffsetFraction
+                            ).absoluteValue
+                    lerp(
+                        start = ScaleFactor(1f, 0.85f),
+                        stop = ScaleFactor(1f, 1f),
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    ).also { scale ->
+                        scaleX = scale.scaleX
+                        scaleY = scale.scaleY
+                    }
                 }
+                .clickable {
+                    onMovieClicked(nowPlayingMovie2[page])
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier.clip(RoundedCornerShape(16.dp)),
+                contentAlignment = Alignment.BottomCenter
+
+            ) {
+                /*Image(
+                    painter = painterResource(id = nowPlayingMovie[page].assetImage),
+                    contentDescription = "Movie Image",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.85f)
+                        .height(340.dp)
+                )*/
+                AsyncImage(
+                    model = ImageRequest.Builder(context = LocalContext.current)
+                        .data(nowPlayingMovie2[page].imgSrc)
+                        .crossfade(true)
+                        .build(),
+                    error = painterResource(R.drawable.baseline_broken_image_24),
+                    contentDescription = "Movie Image",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.85f)
+                        .height(340.dp)
+                )
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = nowPlayingMovie2[page].name,
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
@@ -637,5 +672,3 @@ fun DrawerBody(
         }
     }
 }
-
-
