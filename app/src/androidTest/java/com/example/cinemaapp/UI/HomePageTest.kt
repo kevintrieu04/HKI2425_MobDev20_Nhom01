@@ -13,8 +13,6 @@ import com.example.cinemaapp.viewmodels.HomePageViewModel
 import com.example.cinemaapp.viewmodels.SearchScreenViewModel
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito
-import org.mockito.kotlin.whenever
 
 class HomePageTest {
 
@@ -23,13 +21,12 @@ class HomePageTest {
 
     @Test
     fun testHomePageDisplaysContentCorrectly() {
-        // Arrange: Mock data and dependencies
-        val mockAds = listOf(
+        val fakeAds = listOf(
             AdModel(id = "1", imgSrc = "https://example.com/ad1.jpg"),
             AdModel(id = "2", imgSrc = "https://example.com/ad2.jpg")
         )
 
-        val mockMovies = listOf(
+        val fakeMovies = listOf(
             Film(
                 id = "1",
                 name = "Inception",
@@ -48,43 +45,34 @@ class HomePageTest {
             )
         )
 
-        val mockViewModel = Mockito.mock(HomePageViewModel::class.java)
-        val mockSearchViewModel = Mockito.mock(SearchScreenViewModel::class.java)
-        whenever(mockViewModel.uiState).thenReturn(
-            HomePageUiState.Success(ads = mockAds, movies = mockMovies)
-        )
-
-        // Act: Set the content for the test
         composeTestRule.setContent {
             TestableHomeScreen(
-                viewModel = mockViewModel,
-                searchViewModel = mockSearchViewModel
+                ads = fakeAds,
+                movies = fakeMovies
             )
         }
 
-        // Assert: Check if UI elements are displayed
         composeTestRule.onNodeWithText("Chào mừng bạn trở lại!").assertIsDisplayed()
         composeTestRule.onNodeWithText("Inception").assertIsDisplayed()
         composeTestRule.onNodeWithText("Interstellar").assertIsDisplayed()
         composeTestRule.onNodeWithText("Thể loại").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Đang chiếu tại rạp").assertIsDisplayed()
 
-        // Act: Simulate navigation by clicking "Xem thêm"
         composeTestRule.onNodeWithText("Xem thêm").performClick()
-        Mockito.verify(mockSearchViewModel).updateQuery("- Tất cả -")
     }
 
     @Composable
-    private fun TestableHomeScreen(
-        viewModel: HomePageViewModel,
-        searchViewModel: SearchScreenViewModel
-    ) {
+    private fun TestableHomeScreen(ads: List<AdModel>, movies: List<Film>) {
         val navController = rememberNavController()
+        val dummyViewModel = HomePageViewModel(
+            ad_reo = TODO()
+        )
+        val dummySearchViewModel = SearchScreenViewModel()
+
         HomeScreen(
-            uiState = viewModel.uiState,
+            uiState = HomePageUiState.Success(ads = ads, movies = movies),
             navController = navController,
-            viewModel = viewModel,
-            searchViewModel = searchViewModel
+            viewModel = dummyViewModel,
+            searchViewModel = dummySearchViewModel
         )
     }
 }

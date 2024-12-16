@@ -1,14 +1,13 @@
 package com.example.cinemaapp.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.compose.rememberNavController
 import com.example.cinemaapp.data.Film
-import com.example.cinemaapp.viewmodels.HomePageViewModel
 import org.junit.Rule
 import org.junit.Test
-
 
 class DetailScreenTest {
 
@@ -16,8 +15,8 @@ class DetailScreenTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun testDetailScreenDisplaysMovieDetails() {
-        // Arrange: Mock data and dependencies
+    fun testDetailScreenAlwaysDisplaysCorrectly() {
+        // Arrange: Dữ liệu giả (mock data)
         val mockFilm = Film(
             id = "1",
             type = "Movie",
@@ -36,25 +35,11 @@ class DetailScreenTest {
 
 
 
-        // Act: Set the content and load the screen
-        composeTestRule.setContent {
-
-        }
-
-        // Assert: Check if movie details are displayed
-        composeTestRule.onNodeWithText("Inception").assertExists()
-        composeTestRule.onNodeWithText("Sci-Fi").assertExists()
-        composeTestRule.onNodeWithText("148 phút").assertExists()
-        composeTestRule.onNodeWithText("A thief who steals corporate secrets through the use of dream-sharing technology...").assertExists()
+        composeTestRule.onNodeWithText("Inception").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Sci-Fi").assertIsDisplayed()
+        composeTestRule.onNodeWithText("148 phút").assertIsDisplayed()
+        composeTestRule.onNodeWithText("A thief who steals corporate secrets through the use of dream-sharing technology...").assertIsDisplayed()
     }
 
-    @Composable
-    private fun TestableDetailScreen(film: Film, homePageViewModel: HomePageViewModel) {
-        val navController = rememberNavController()
-        DetailScreen(
-            navController = navController,
-            movie = film,
-            homePageViewModel = homePageViewModel
-        )
-    }
+
 }
