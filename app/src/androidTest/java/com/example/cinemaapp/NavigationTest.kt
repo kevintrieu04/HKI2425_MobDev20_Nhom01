@@ -19,6 +19,7 @@ import com.example.cinemaapp.viewmodels.SearchScreenViewModel
 import okhttp3.internal.wait
 import org.junit.Rule
 import org.junit.Test
+import java.lang.Thread.sleep
 
 class NavigationTest {
 
@@ -31,6 +32,7 @@ class NavigationTest {
 
     @Test
     fun testStartDestinationIsHome() {
+        sleep(6000) // Waits for 2 seconds
         composeTestRule.setContent {
             val navController = rememberNavController()
             AppRoute.GenerateRoute(
@@ -46,6 +48,8 @@ class NavigationTest {
 
     @Test
     fun testNavigateToLogin() {
+        sleep(6000) // Waits for 2 seconds
+
         composeTestRule.setContent {
             val navController = rememberNavController()
             AppRoute.GenerateRoute(
@@ -66,6 +70,8 @@ class NavigationTest {
 
     @Test
     fun testNavigateToSearch() {
+        sleep(6000) // Waits for 2 seconds
+
         composeTestRule.setContent {
             val navController = rememberNavController()
             AppRoute.GenerateRoute(
@@ -80,6 +86,8 @@ class NavigationTest {
 
     @Test
     fun testNavigateToSearchWithCategory() {
+        sleep(6000) // Waits for 2 seconds
+
         composeTestRule.setContent {
             val navController = rememberNavController()
             AppRoute.GenerateRoute(
@@ -94,6 +102,8 @@ class NavigationTest {
 
     @Test
     fun testNavigateToSearch2() {
+        sleep(6000) // Waits for 2 seconds
+
         composeTestRule.setContent {
             val navController = rememberNavController()
             AppRoute.GenerateRoute(
@@ -109,6 +119,8 @@ class NavigationTest {
 
     @Test
     fun testNavigateToSearch3() {
+        sleep(6000) // Waits for 2 seconds
+
         composeTestRule.setContent {
             val navController = rememberNavController()
             AppRoute.GenerateRoute(
@@ -124,6 +136,8 @@ class NavigationTest {
 
     @Test
     fun testNavigateToSearch4() {
+        sleep(6000) // Waits for 2 seconds
+
         composeTestRule.setContent {
             val navController = rememberNavController()
             AppRoute.GenerateRoute(
@@ -138,6 +152,7 @@ class NavigationTest {
 
     @Test
     fun testDetailScreen() {
+        sleep(6000) // Waits for 2 seconds
 
         val uiStateHolder = mutableStateOf<HomePageUiState>(HomePageUiState.Loading)
 

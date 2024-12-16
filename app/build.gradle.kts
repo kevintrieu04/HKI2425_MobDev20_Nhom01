@@ -50,6 +50,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
 }
 
 dependencies {
@@ -94,9 +95,17 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.androidx.credentials.play.services.auth)
 
+    testImplementation ("junit:junit:4.13.2")
+    androidTestImplementation ("androidx.compose.ui:ui-test-junit4:1.5.0")
 
 
+    testImplementation ("org.mockito:mockito-core:5.5.0")
 
+// Mockito Kotlin (For better Kotlin support)
+    testImplementation ("org.mockito.kotlin:5.0.0")
+
+// Compose Testing
+    androidTestImplementation ("androidx.compose.ui:ui-test-junit4:1.5.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
