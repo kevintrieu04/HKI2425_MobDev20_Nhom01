@@ -1,7 +1,5 @@
 package com.example.cinemaapp.data
 
-import kotlin.time.Duration
-
 data class Film(
     var id: String = "",
     val type: String = "",

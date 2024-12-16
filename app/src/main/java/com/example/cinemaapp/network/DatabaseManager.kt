@@ -4,9 +4,11 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
+import com.example.cinemaapp.MainActivity
 import com.example.cinemaapp.data.Comment
 import com.example.cinemaapp.data.Film
 import com.example.cinemaapp.ui.UserProfile
+import com.example.cinemaapp.viewmodels.HomePageViewModel
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -16,7 +18,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import java.time.LocalDate
 
 class DatabaseManager {
 
@@ -118,11 +119,12 @@ class DatabaseManager {
     }
 }
 
-fun getCommentsFromFirestore(): Flow<List<Comment>> {
+fun getCommentsFromFirestore(movieId : String): Flow<List<Comment>> {
     val firestore = FirebaseFirestore.getInstance()
     return callbackFlow {
         val listener = firestore.collection("comments")
-            .orderBy("timestamp")
+            .whereEqualTo("movieId", movieId)
+            //  "timestamp")
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
                     close(exception)
@@ -138,15 +140,20 @@ fun getCommentsFromFirestore(): Flow<List<Comment>> {
 
                     // Lấy thông tin người dùng trước
                     val userFetchTasks = userIDs.map { userID ->
-                        firestore.collection("Users")
-                            .document(userID)
+                        firestore.collection("user")
+                            .whereEqualTo("userID", userID) // Truy vấn theo thuộc tính userID
                             .get()
                             .continueWith { task ->
                                 if (task.isSuccessful && task.result != null) {
-                                    val userProfile = task.result.toObject(UserProfile::class.java)
-                                    if (userProfile != null) {
-                                        userProfiles[userID] = userProfile
+                                    for (document in task.result.documents) { // Có thể có nhiều kết quả, nhưng ở đây ta giả định chỉ có một
+                                        val userProfile = document.toObject(UserProfile::class.java)
+                                        if (userProfile != null) {
+                                            userProfiles[userID] = userProfile
+                                            Log.d("UserProfile", userProfile.toString())
+                                        }
                                     }
+                                } else {
+                                    Log.e("UserProfile", "Failed to fetch user for userID: $userID", task.exception)
                                 }
                             }
                     }
@@ -157,10 +164,11 @@ fun getCommentsFromFirestore(): Flow<List<Comment>> {
                             if (comment != null) {
                                 val userProfile = userProfiles[comment.userId]
                                 if (userProfile != null) {
-                                    comment.userName = userProfile.userName
-                                    comment.profileImage = userProfile.profileImage
+                                    comment.userName = userProfile.username
+                                    comment.profileImage = userProfile.imgSrc
                                 }
                                 comments.add(comment)
+                                Log.d("Comment", comment.toString())
                             }
                         }
                         trySend(comments.toList())
@@ -175,7 +183,7 @@ fun getCommentsFromFirestore(): Flow<List<Comment>> {
 }
 
 
-fun saveRatingToFirestore(filmName: String, rank: Int, context: Context) {
+fun saveRatingToFirestore(filmName: String, rank: Int, context: Context, homePageViewModel: HomePageViewModel) {
     val firestore = FirebaseFirestore.getInstance()
     val user = FirebaseAuth.getInstance().currentUser
 
@@ -183,8 +191,8 @@ fun saveRatingToFirestore(filmName: String, rank: Int, context: Context) {
         .whereEqualTo("user", user?.uid)
         .whereEqualTo("film", filmName)
         .get()
-        .addOnSuccessListener {
-            if (it.isEmpty) {
+        .addOnSuccessListener { querySnapshot ->
+            if (querySnapshot.isEmpty) {
                 val review = hashMapOf(
                     "user" to user?.uid,
                     "film" to filmName,
@@ -195,6 +203,9 @@ fun saveRatingToFirestore(filmName: String, rank: Int, context: Context) {
                     .addOnSuccessListener {
                         Log.d("RatingPopup", "Đánh giá đã được lưu vào Firestore")
                         Toast.makeText(context, "Đã lưu đánh giá!", Toast.LENGTH_SHORT).show()
+
+                        // Tính và cập nhật rating trung bình sau khi lưu
+                        updateFilmRating(filmName, firestore, homePageViewModel)
                     }.addOnFailureListener {
                         Log.e("RatingPopup", "Lỗi khi lưu đánh giá: ${it.message}")
                         Toast.makeText(context, "Có lỗi xảy ra, vui lòng thử lại", Toast.LENGTH_SHORT).show()
@@ -206,11 +217,14 @@ fun saveRatingToFirestore(filmName: String, rank: Int, context: Context) {
                     "rank" to rank
                 )
                 firestore.collection("ratings")
-                    .document(it.documents[0].id)
+                    .document(querySnapshot.documents[0].id)
                     .set(review)
                     .addOnSuccessListener {
                         Log.d("RatingPopup", "Đánh giá đã được cập nhật vào Firestore")
                         Toast.makeText(context, "Đã cập nhật đánh giá!", Toast.LENGTH_SHORT).show()
+
+                        // Tính và cập nhật rating trung bình sau khi cập nhật
+                        updateFilmRating(filmName, firestore, homePageViewModel)
                     }.addOnFailureListener {
                         Log.e("RatingPopup", "Lỗi khi cập nhật đánh giá: ${it.message}")
                         Toast.makeText(context, "Có lỗi xảy ra, vui lòng thử lại", Toast.LENGTH_SHORT).show()
@@ -222,18 +236,39 @@ fun saveRatingToFirestore(filmName: String, rank: Int, context: Context) {
         }
 }
 
-fun checkRating(filmName: String, onCallback: (Boolean) -> Unit) {
-
-    val firestore = FirebaseFirestore.getInstance()
-    val user = FirebaseAuth.getInstance().currentUser
-    val task = firestore.collection("ratings")
-        .whereEqualTo("user", user?.uid)
+private fun updateFilmRating(filmName: String, firestore: FirebaseFirestore ,homePageViewModel: HomePageViewModel) {
+    firestore.collection("ratings")
         .whereEqualTo("film", filmName)
         .get()
-        .addOnSuccessListener {
-            val result = !it.isEmpty
-            onCallback(result)
+        .addOnSuccessListener { ratingsSnapshot ->
+            val ratings = ratingsSnapshot.documents.mapNotNull { it.getLong("rank")?.toDouble() }
+
+            if (ratings.isNotEmpty()) {
+                val averageRating = (ratings.average() * 2).let {
+                    String.format("%.1f", it).toDouble()
+                }
+
+                firestore.collection("film")
+                    .whereEqualTo("name", filmName)
+                    .get()
+                    .addOnSuccessListener { filmSnapshot ->
+                        if (filmSnapshot.documents.isNotEmpty()) {
+                            val filmId = filmSnapshot.documents[0].id
+                            firestore.collection("film")
+                                .document(filmId)
+                                .update("rating", averageRating)
+                                .addOnSuccessListener {
+                                    Log.d("RatingPopup", "Rating trung bình của phim đã được cập nhật: $averageRating")
+                                    homePageViewModel.updateRating(filmName, averageRating)
+                                }.addOnFailureListener {
+                                    Log.e("RatingPopup", "Lỗi khi cập nhật rating phim: ${it.message}")
+                                }
+                        }
+                    }.addOnFailureListener {
+                        Log.e("RatingPopup", "Lỗi khi tìm phim: ${it.message}")
+                    }
+            }
         }.addOnFailureListener {
-            onCallback(false)
+            Log.e("RatingPopup", "Lỗi khi lấy danh sách đánh giá: ${it.message}")
         }
 }

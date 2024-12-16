@@ -1,5 +1,7 @@
 package com.example.cinemaapp
 
+import androidx.activity.compose.setContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -8,60 +10,91 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.cinemaapp.data.AdModel
 import com.example.cinemaapp.data.Film
-import com.example.cinemaapp.models.AdRepository
-import com.example.cinemaapp.models.AdvertisementRepository
-import com.example.cinemaapp.network.NetworkAPI
 import com.example.cinemaapp.ui.Banners
 import com.example.cinemaapp.ui.HomeScreen
+import com.example.cinemaapp.ui.navigation.AppRoute
 import com.example.cinemaapp.viewmodels.HomePageUiState
 import com.example.cinemaapp.viewmodels.HomePageViewModel
 import com.example.cinemaapp.viewmodels.SearchScreenViewModel
+import com.example.compose.AppTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.junit.Rule
 import org.junit.Test
 class HomePageUiTest {
-    var movies:List<Film> = emptyList()
-    var ads:List<AdModel> = emptyList()
-
-
     @get:Rule
     val composeTestRule = createComposeRule()
+
     @Test
     fun homeScreen_displaysTitle() {
         composeTestRule.setContent {
-            HomeScreen(
-                uiState = HomePageUiState.Success(
-                    ads = listOf(),
-                    movies = listOf(),
-                ),
-                navController = rememberNavController(),
-                viewModel =  viewModel(factory = HomePageViewModel.Factory),
-                searchViewModel = SearchScreenViewModel()
+            /// from Accompanist, setting a status bar
+            val systemUiController = rememberSystemUiController()
+            systemUiController.setStatusBarColor(
+                color = Color.Transparent,
+                darkIcons = true,
             )
-        }
+            systemUiController.setNavigationBarColor(
+                color = Color.Transparent,
+                darkIcons = true,
+            )
 
+
+            AppTheme {
+                /// main navigation
+                val navController = rememberNavController()
+                val homePageViewModel: HomePageViewModel =
+                    viewModel(factory = HomePageViewModel.Factory)
+                val uiState = homePageViewModel.uiState
+                val searchViewModel: SearchScreenViewModel = viewModel()
+
+                AppRoute.GenerateRoute(
+                    navController = navController,
+                    uiState = uiState,
+                    homePageViewModel = homePageViewModel,
+                    searchViewModel = searchViewModel
+                )
+            }
+        }
         composeTestRule.onNodeWithText("Trang chủ").assertExists()
     }
+        @Test
+        fun homeScreen_opensDrawerMenu() {
+            composeTestRule.setContent {
+                /// from Accompanist, setting a status bar
+                val systemUiController = rememberSystemUiController()
+                systemUiController.setStatusBarColor(
+                    color = Color.Transparent,
+                    darkIcons = true,
+                )
+                systemUiController.setNavigationBarColor(
+                    color = Color.Transparent,
+                    darkIcons = true,
+                )
 
-    @Test
-    fun homeScreen_opensDrawerMenu() {
-        composeTestRule.setContent {
-            HomeScreen(
-                uiState = HomePageUiState.Success(
-                    ads = listOf(),
-                    movies = listOf()
-                ),
-                navController = rememberNavController(),
-                viewModel =  viewModel(factory = HomePageViewModel.Factory),
-                searchViewModel = SearchScreenViewModel()
-            )
+
+                AppTheme {
+                    /// main navigation
+                    val navController = rememberNavController()
+                    val homePageViewModel: HomePageViewModel =
+                        viewModel(factory = HomePageViewModel.Factory)
+                    val uiState = homePageViewModel.uiState
+                    val searchViewModel: SearchScreenViewModel = viewModel()
+
+                    AppRoute.GenerateRoute(
+                        navController = navController,
+                        uiState = uiState,
+                        homePageViewModel = homePageViewModel,
+                        searchViewModel = searchViewModel
+                    )
+                }
+            }
+
+            // Bấm vào nút mở drawer
+            composeTestRule.onNodeWithContentDescription("Localized description").assertExists()
+            composeTestRule.onNodeWithContentDescription("Localized description").performClick()
+
+            // Kiểm tra drawer menu được mở
+            composeTestRule.onNodeWithText("Bạn chưa đăng nhập").assertExists()
         }
 
-        // Bấm vào nút mở drawer
-        composeTestRule.onNodeWithContentDescription("Localized description").performClick()
-
-        // Kiểm tra drawer menu được mở
-        composeTestRule.onNodeWithText("Bạn chưa đăng nhập").assertExists()
     }
-
-
-}

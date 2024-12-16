@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.accompanist.systemuicontroller)
     // Firebase Authentication (if not added already)
     implementation (libs.firebase.auth.ktx)
+    implementation (libs.material3)
 
 // Firebase Firestore dependency
     implementation (libs.firebase.firestore.ktx)
